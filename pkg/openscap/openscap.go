@@ -19,6 +19,7 @@ const (
 	CPEDict         = "/usr/share/openscap/cpe/openscap-cpe-oval.xml"
 	CVEUrl          = "https://www.redhat.com/security/data/metrics/ds/"
 	DistCVENameFmt  = "com.redhat.rhsa-RHEL%d.ds.xml.bz2"
+	StaticCVEFeeds  = "/var/lib/image-inspector/cve_feeds"
 	ArfResultFile   = "results-arf.xml"
 	TmpDir          = "/tmp"
 	Linux           = "Linux"
@@ -46,8 +47,8 @@ type chrootOscapFunc func(...string) ([]byte, error)
 type setEnvFunc func() error
 
 type defaultOSCAPScanner struct {
-	// CVEDir is the directory where the CVE file is saved
-	CVEDir string
+	// DownloadCVEDir is the directory where the CVE file is downloaded and saved
+	DownloadCVEDir string
 	// ResultsDir is the directory to which the arf report will be written
 	ResultsDir string
 
@@ -65,8 +66,8 @@ type defaultOSCAPScanner struct {
 // NewDefaultScanner returns a new OpenSCAP scanner
 func NewDefaultScanner(cveDir string, resultsDir string) Scanner {
 	scanner := &defaultOSCAPScanner{
-		CVEDir:     cveDir,
-		ResultsDir: resultsDir,
+		DownloadCVEDir: cveDir,
+		ResultsDir:     resultsDir,
 	}
 
 	scanner.rhelDist = scanner.getRHELDist
@@ -91,11 +92,8 @@ func (s *defaultOSCAPScanner) getRHELDist() (int, error) {
 	return 0, fmt.Errorf("could not find RHEL dist")
 }
 
-func (s *defaultOSCAPScanner) getInputCVE(dist int) (string, error) {
-	cveName := fmt.Sprintf(DistCVENameFmt, dist)
-	cveFileName := path.Join(s.CVEDir, cveName)
-	cveURL, _ := url.Parse(CVEUrl)
-	cveURL.Path = path.Join(cveURL.Path, cveName)
+func downloadCVE(cveName, downloadDir string) (string, error) {
+	cveFileName := path.Join(downloadDir, cveName)
 
 	out, err := os.Create(cveFileName)
 	if err != nil {
@@ -103,6 +101,8 @@ func (s *defaultOSCAPScanner) getInputCVE(dist int) (string, error) {
 	}
 	defer out.Close()
 
+	cveURL, _ := url.Parse(CVEUrl)
+	cveURL.Path = path.Join(cveURL.Path, cveName)
 	resp, err := http.Get(cveURL.String())
 	if err != nil {
 		return "", fmt.Errorf("Could not download file %s: %v\n", cveURL, err)
@@ -110,6 +110,20 @@ func (s *defaultOSCAPScanner) getInputCVE(dist int) (string, error) {
 	defer resp.Body.Close()
 
 	_, err = io.Copy(out, resp.Body)
+	return cveFileName, err
+}
+
+func (s *defaultOSCAPScanner) getInputCVE(dist int) (string, error) {
+	var err error
+	cveName := fmt.Sprintf(DistCVENameFmt, dist)
+	cveFileName, downloadErr := downloadCVE(cveName, s.DownloadCVEDir)
+	if downloadErr != nil {
+		cveFileName = path.Join(StaticCVEFeeds, cveName)
+		_, err = os.Stat(cveFileName)
+		if os.IsNotExist(err) {
+			err = fmt.Errorf("Unable to download the CVE file (%v) or find it in the static files (%v)", downloadErr, err)
+		}
+	}
 	return cveFileName, err
 }
 

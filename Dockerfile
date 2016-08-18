@@ -18,4 +18,8 @@ EXPOSE 8080
 
 WORKDIR /var/lib/image-inspector
 
+RUN mkdir cve_feeds && \
+    wget --no-verbose -P cve_feeds/ \
+    https://www.redhat.com/security/data/metrics/ds/com.redhat.rhsa-RHEL{5,6,7}.ds.xml.bz2
+
 ENTRYPOINT ["/usr/bin/image-inspector"]
