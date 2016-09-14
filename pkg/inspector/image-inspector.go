@@ -29,16 +29,17 @@ type APIVersions struct {
 }
 
 const (
-	VERSION_TAG        = "v1"
-	DOCKER_TAR_PREFIX  = "rootfs/"
-	OWNER_PERM_RW      = 0600
-	HEALTHZ_URL_PATH   = "/healthz"
-	API_URL_PREFIX     = "/api"
-	CONTENT_URL_PREFIX = API_URL_PREFIX + "/" + VERSION_TAG + "/content/"
-	METADATA_URL_PATH  = API_URL_PREFIX + "/" + VERSION_TAG + "/metadata"
-	OPENSCAP_URL_PATH  = API_URL_PREFIX + "/" + VERSION_TAG + "/openscap"
-	CHROOT_SERVE_PATH  = "/"
-	OSCAP_CVE_DIR      = "/tmp"
+	VERSION_TAG              = "v1"
+	DOCKER_TAR_PREFIX        = "rootfs/"
+	OWNER_PERM_RW            = 0600
+	HEALTHZ_URL_PATH         = "/healthz"
+	API_URL_PREFIX           = "/api"
+	CONTENT_URL_PREFIX       = API_URL_PREFIX + "/" + VERSION_TAG + "/content/"
+	METADATA_URL_PATH        = API_URL_PREFIX + "/" + VERSION_TAG + "/metadata"
+	OPENSCAP_URL_PATH        = API_URL_PREFIX + "/" + VERSION_TAG + "/openscap"
+	OPENSCAP_REPORT_URL_PATH = API_URL_PREFIX + "/" + VERSION_TAG + "/openscap-report"
+	CHROOT_SERVE_PATH        = "/"
+	OSCAP_CVE_DIR            = "/tmp"
 )
 
 var osMkdir = os.Mkdir
@@ -107,12 +108,13 @@ func (i *defaultImageInspector) Inspect() error {
 	supportedVersions := APIVersions{Versions: []string{VERSION_TAG}}
 
 	var scanReport []byte
+	var htmlScanReport []byte
 	if i.opts.ScanType == "openscap" {
 		if i.opts.ScanResultsDir, err = createOutputDir(i.opts.ScanResultsDir, "image-inspector-scan-results-"); err != nil {
 			return err
 		}
 		scanner := openscap.NewDefaultScanner(OSCAP_CVE_DIR, i.opts.ScanResultsDir, i.opts.Html)
-		scanReport, err = i.scanImage(scanner)
+		scanReport, htmlScanReport, err = i.scanImage(scanner)
 		if err != nil {
 			i.meta.OpenSCAP.SetError(err)
 			log.Printf("Unable to scan image: %v", err)
@@ -161,6 +163,19 @@ func (i *defaultImageInspector) Inspect() error {
 		http.HandleFunc(OPENSCAP_URL_PATH, func(w http.ResponseWriter, r *http.Request) {
 			if i.opts.ScanType == "openscap" && i.meta.OpenSCAP.Status == StatusSuccess {
 				w.Write(scanReport)
+			} else {
+				if i.meta.OpenSCAP.Status == StatusError {
+					http.Error(w, fmt.Sprintf("OpenSCAP Error: %s", i.meta.OpenSCAP.ErrorMessage),
+						http.StatusInternalServerError)
+				} else {
+					http.Error(w, "OpenSCAP option was not chosen", http.StatusNotFound)
+				}
+			}
+		})
+
+		http.HandleFunc(OPENSCAP_REPORT_URL_PATH, func(w http.ResponseWriter, r *http.Request) {
+			if i.opts.ScanType == "openscap" && i.meta.OpenSCAP.Status == StatusSuccess && i.opts.Html {
+				w.Write(htmlScanReport)
 			} else {
 				if i.meta.OpenSCAP.Status == StatusError {
 					http.Error(w, fmt.Sprintf("OpenSCAP Error: %s", i.meta.OpenSCAP.ErrorMessage),
@@ -372,18 +387,24 @@ func (i *defaultImageInspector) getAuthConfigs() (*docker.AuthConfigurations, er
 	return imagePullAuths, nil
 }
 
-func (i *defaultImageInspector) scanImage(s openscap.Scanner) ([]byte, error) {
+func (i *defaultImageInspector) scanImage(s openscap.Scanner) ([]byte, []byte, error) {
 	log.Printf("%s scanning %s. Placing results in %s",
 		s.ScannerName(), i.opts.DstPath, i.opts.ScanResultsDir)
 	err := s.Scan(i.opts.DstPath, &i.meta.Image)
 	if err != nil {
-		return []byte(""), fmt.Errorf("Unable to run %s: %v\n", s.ScannerName(), err)
+		return []byte(""), []byte(""), fmt.Errorf("Unable to run %s: %v\n", s.ScannerName(), err)
 	}
 	scanReport, err := ioutil.ReadFile(s.ResultsFileName())
 	if err != nil {
-		return []byte(""), fmt.Errorf("Unable to read %s result file: %v\n", s.ScannerName(), err)
+		return []byte(""), []byte(""), fmt.Errorf("Unable to read %s result file: %v\n", s.ScannerName(), err)
 	}
-	return scanReport, nil
+
+	htmlScanReport, err := ioutil.ReadFile(s.HTMLResultsFileName())
+	if err != nil {
+		return []byte(""), []byte(""), fmt.Errorf("Unable to read %s HTML result file: %v\n", s.ScannerName(), err)
+	}
+
+	return scanReport, htmlScanReport, nil
 }
 
 func createOutputDir(dirName string, tempName string) (string, error) {
