@@ -22,6 +22,7 @@ func main() {
 	flag.StringVar(&inspectorOptions.PasswordFile, "password-file", inspectorOptions.PasswordFile, "Location of a file that contains the password for authentication with the docker registry")
 	flag.StringVar(&inspectorOptions.ScanType, "scan-type", inspectorOptions.ScanType, fmt.Sprintf("The type of the scan to be done on the inspected image. Available scan types are: %v", iicmd.ScanOptions))
 	flag.StringVar(&inspectorOptions.ScanResultsDir, "scan-results-dir", inspectorOptions.ScanResultsDir, "The directory that will contain the results of the scan")
+  flag.BoolVar(&inspectorOptions.Html, "html", inspectorOptions.Html, "Generate an OpenScap HTML report in addition to the ARF formatted report")
 
 	flag.Parse()
 

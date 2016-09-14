@@ -12,4 +12,6 @@ type Scanner interface {
 	ScannerName() string
 	// ResultFileName returns the name of the results file
 	ResultsFileName() string
+	// HtmlResultFileName returns the name of the results file
+	HTMLResultsFileName() string
 }

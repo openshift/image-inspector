@@ -2,8 +2,6 @@ package openscap
 
 import (
 	"fmt"
-	docker "github.com/fsouza/go-dockerclient"
-	util "github.com/openshift/image-inspector/pkg/util"
 	"io"
 	"net/http"
 	"net/url"
@@ -12,6 +10,9 @@ import (
 	"path"
 	"strings"
 	"syscall"
+
+	docker "github.com/fsouza/go-dockerclient"
+	util "github.com/openshift/image-inspector/pkg/util"
 )
 
 const (
@@ -20,6 +21,7 @@ const (
 	CVEUrl          = "https://www.redhat.com/security/data/metrics/ds/"
 	DistCVENameFmt  = "com.redhat.rhsa-RHEL%d.ds.xml.bz2"
 	ArfResultFile   = "results-arf.xml"
+	HTMLResultFile  = "results.html"
 	TmpDir          = "/tmp"
 	Linux           = "Linux"
 	OpenSCAP        = "OpenSCAP"
@@ -60,13 +62,17 @@ type defaultOSCAPScanner struct {
 	inputCVE    inputCVEFunc
 	chrootOscap chrootOscapFunc
 	setEnv      setEnvFunc
+
+	// Whether or not to generate an HTML report
+	HTML bool
 }
 
 // NewDefaultScanner returns a new OpenSCAP scanner
-func NewDefaultScanner(cveDir string, resultsDir string) Scanner {
+func NewDefaultScanner(cveDir string, resultsDir string, html bool) Scanner {
 	scanner := &defaultOSCAPScanner{
 		CVEDir:     cveDir,
 		ResultsDir: resultsDir,
+		HTML:       html,
 	}
 
 	scanner.rhelDist = scanner.getRHELDist
@@ -173,10 +179,19 @@ func (s *defaultOSCAPScanner) Scan(mountPath string, image *docker.Image) error 
 		return fmt.Errorf("Unable to retreive the CVE file: %v\n", err)
 	}
 
+	if s.HTML {
+		_, err = s.chrootOscap("xccdf", "eval",
+			"--results-arf", s.ResultsFileName(),
+			"--report", s.HTMLResultsFileName(),
+			cveFileName)
+		return err
+	}
+
 	_, err = s.chrootOscap("xccdf", "eval",
 		"--results-arf", s.ResultsFileName(),
 		cveFileName)
 	return err
+
 }
 
 func (s *defaultOSCAPScanner) ScannerName() string {
@@ -185,4 +200,8 @@ func (s *defaultOSCAPScanner) ScannerName() string {
 
 func (s *defaultOSCAPScanner) ResultsFileName() string {
 	return path.Join(s.ResultsDir, ArfResultFile)
+}
+
+func (s *defaultOSCAPScanner) HTMLResultsFileName() string {
+	return path.Join(s.ResultsDir, HTMLResultFile)
 }

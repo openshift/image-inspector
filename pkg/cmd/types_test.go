@@ -39,6 +39,7 @@ func TestValidate(t *testing.T) {
 	goodScanOptions.Image = "image"
 	goodScanOptions.ScanType = "openscap"
 	goodScanOptions.ScanResultsDir = "."
+	goodScanOptions.Html = true
 
 	notADirResScan := NewDefaultImageInspectorOptions()
 	notADirResScan.Image = "image"
@@ -54,22 +55,33 @@ func TestValidate(t *testing.T) {
 	noSuchFileDockercfg.Image = "image"
 	noSuchFileDockercfg.DockerCfg.Set("nosuchfile")
 
+	badScanOptionsHTMLnoScan := NewDefaultImageInspectorOptions()
+	badScanOptionsHTMLnoScan.Image = "image"
+	badScanOptionsHTMLnoScan.Html = true
+
+	badScanOptionsHTMLWrongScan := NewDefaultImageInspectorOptions()
+	badScanOptionsHTMLWrongScan.Image = "image"
+	badScanOptionsHTMLWrongScan.Html = true
+	badScanOptionsHTMLWrongScan.ScanType = "nosuchscantype"
+
 	tests := map[string]struct {
 		inspector      *ImageInspectorOptions
 		shouldValidate bool
 	}{
-		"no uri":                        {inspector: noURI, shouldValidate: false},
-		"no image":                      {inspector: NewDefaultImageInspectorOptions(), shouldValidate: false},
-		"docker config and username":    {inspector: dockerCfgAndUsername, shouldValidate: false},
-		"username and no password file": {inspector: usernameNoPasswordFile, shouldValidate: false},
-		"no serve and chroot":           {inspector: noServeAndChroot, shouldValidate: false},
-		"good config with username":     {inspector: goodConfigUsername, shouldValidate: true},
-		"good config with docker cfg":   {inspector: goodConfigWithDockerCfg, shouldValidate: true},
-		"no scan-type with scan-dir":    {inspector: noScanTypeAndDir, shouldValidate: false},
-		"no such file dockercfg":        {inspector: noSuchFileDockercfg, shouldValidate: false},
-		"no such scan type available":   {inspector: noSuchScanType, shouldValidate: false},
-		"file exists and is not a dir":  {inspector: notADirResScan, shouldValidate: false},
-		"good config with scan options": {inspector: goodScanOptions, shouldValidate: true},
+		"no uri":                              {inspector: noURI, shouldValidate: false},
+		"no image":                            {inspector: NewDefaultImageInspectorOptions(), shouldValidate: false},
+		"docker config and username":          {inspector: dockerCfgAndUsername, shouldValidate: false},
+		"username and no password file":       {inspector: usernameNoPasswordFile, shouldValidate: false},
+		"no serve and chroot":                 {inspector: noServeAndChroot, shouldValidate: false},
+		"good config with username":           {inspector: goodConfigUsername, shouldValidate: true},
+		"good config with docker cfg":         {inspector: goodConfigWithDockerCfg, shouldValidate: true},
+		"no scan-type with scan-dir":          {inspector: noScanTypeAndDir, shouldValidate: false},
+		"no such file dockercfg":              {inspector: noSuchFileDockercfg, shouldValidate: false},
+		"no such scan type available":         {inspector: noSuchScanType, shouldValidate: false},
+		"file exists and is not a dir":        {inspector: notADirResScan, shouldValidate: false},
+		"good config with scan options":       {inspector: goodScanOptions, shouldValidate: true},
+		"bad config with html and no scan":    {inspector: badScanOptionsHTMLnoScan, shouldValidate: false},
+		"bad config with html and wrong scan": {inspector: badScanOptionsHTMLWrongScan, shouldValidate: false},
 	}
 
 	for k, v := range tests {
