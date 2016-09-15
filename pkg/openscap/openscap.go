@@ -179,17 +179,16 @@ func (s *defaultOSCAPScanner) Scan(mountPath string, image *docker.Image) error 
 		return fmt.Errorf("Unable to retreive the CVE file: %v\n", err)
 	}
 
+	args := []string{"xccdf", "eval", "--results-arf", s.ResultsFileName()}
+
 	if s.HTML {
-		_, err = s.chrootOscap("xccdf", "eval",
-			"--results-arf", s.ResultsFileName(),
-			"--report", s.HTMLResultsFileName(),
-			cveFileName)
-		return err
+		args = append(args, "--report", s.HTMLResultsFileName())
 	}
 
-	_, err = s.chrootOscap("xccdf", "eval",
-		"--results-arf", s.ResultsFileName(),
-		cveFileName)
+	args = append(args, cveFileName)
+
+	_, err = s.chrootOscap(args...)
+
 	return err
 
 }
