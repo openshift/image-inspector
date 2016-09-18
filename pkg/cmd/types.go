@@ -95,7 +95,7 @@ func (i *ImageInspectorOptions) Validate() error {
 		}
 	}
 	if i.Html && (len(i.ScanType) == 0 || i.ScanType != "openscap") {
-		return fmt.Errorf("Html can be used only when specifying scan-type as \"openscap\"")
+		return fmt.Errorf("html can be used only when specifying scan-type as \"openscap\"")
 	}
 	for _, fl := range append(i.DockerCfg.Values, i.PasswordFile) {
 		if len(fl) > 0 {
