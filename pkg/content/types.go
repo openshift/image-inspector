@@ -1,16 +1,10 @@
 package content
 
-const (
-	//DefaultUserFilePath specifies where users are listed
-	DefaultUserFilePath = "/etc/passwd"
-	//DefaultGroupFilePath specifies where groups are listed
-	DefaultGroupFilePath = "/etc/group"
-	//DefaultReleasePath specifies where *-release file can be found
-	DefaultReleasePath = "/etc/"
-)
-
-// chrootContentFunc provides an injectable way to chroot and execute oscap for testing.
+// chrootContentFunc provides an injectable way to chroot and execute for testing.
 type chrootContentFunc func(string) error
+
+//chrootCommandFunc provides an injectable way to chroot and execute for testing.
+type chrootCommandFunc func(string)
 
 // Inspector is the interface for all image inspectors.
 type Inspector interface {

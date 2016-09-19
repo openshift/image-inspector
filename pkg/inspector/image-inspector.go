@@ -39,9 +39,7 @@ const (
 	METADATA_URL_PATH        = API_URL_PREFIX + "/" + VERSION_TAG + "/metadata"
 	OPENSCAP_URL_PATH        = API_URL_PREFIX + "/" + VERSION_TAG + "/openscap"
 	OPENSCAP_REPORT_URL_PATH = API_URL_PREFIX + "/" + VERSION_TAG + "/openscap-report"
-	VERSION_URL_PREFIX       = API_URL_PREFIX + "/" + VERSION_TAG + "/version"
-	USERS_URL_PREFIX         = API_URL_PREFIX + "/" + VERSION_TAG + "/users"
-	GROUPS_URL_PREFIX        = API_URL_PREFIX + "/" + VERSION_TAG + "/groups"
+	PACKAGES_URL_PREFIX      = API_URL_PREFIX + "/" + VERSION_TAG + "/packages"
 	CHROOT_SERVE_PATH        = "/"
 	OSCAP_CVE_DIR            = "/tmp"
 )
@@ -127,14 +125,12 @@ func (i *defaultImageInspector) Inspect() error {
 		}
 	}
 
-	versionInspector := content.NewDefaultVersionInspector()
-	versionInspector.Inspect(i.opts.DstPath)
+	packageInspector := content.NewDefaultPackageInspector()
+	packageInspector.Inspect(i.opts.DstPath)
 
-	userInspector := content.NewDefaultUserInspector()
-	userInspector.Inspect(i.opts.DstPath)
-
-	groupInspector := content.NewDefaultGroupInspector()
-	groupInspector.Inspect(i.opts.DstPath)
+	if err != nil {
+		log.Printf("Unable to obtain package information: %v", err)
+	}
 
 	if len(i.opts.Serve) > 0 {
 		servePath := i.opts.DstPath
@@ -150,6 +146,14 @@ func (i *defaultImageInspector) Inspect() error {
 		}
 
 		log.Printf("Serving image content %s on webdav://%s%s", i.opts.DstPath, i.opts.Serve, CONTENT_URL_PREFIX)
+		log.Printf("Serving image metadata on http://%s%s", i.opts.Serve, METADATA_URL_PATH)
+		log.Printf("Serving image packages on http://%s%s", i.opts.Serve, PACKAGES_URL_PREFIX)
+		if i.opts.ScanType == "openscap" && i.meta.OpenSCAP.Status == StatusSuccess {
+			log.Printf("Serving image OpenSCAP ARF report on http://%s%s", i.opts.Serve, OPENSCAP_URL_PATH)
+			if i.opts.OpenScapHTML {
+				log.Printf("Serving image OpenSCAP HTML report on http://%s%s", i.opts.Serve, OPENSCAP_REPORT_URL_PATH)
+			}
+		}
 
 		http.HandleFunc(HEALTHZ_URL_PATH, func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("ok\n"))
@@ -198,28 +202,9 @@ func (i *defaultImageInspector) Inspect() error {
 				}
 			}
 		})
-		http.HandleFunc(VERSION_URL_PREFIX, func(w http.ResponseWriter, r *http.Request) {
-			body, err := json.MarshalIndent(versionInspector, "", "  ")
 
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-			w.Write(body)
-		})
-
-		http.HandleFunc(USERS_URL_PREFIX, func(w http.ResponseWriter, r *http.Request) {
-			body, err := json.MarshalIndent(userInspector, "", "  ")
-
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-			w.Write(body)
-		})
-
-		http.HandleFunc(GROUPS_URL_PREFIX, func(w http.ResponseWriter, r *http.Request) {
-			body, err := json.MarshalIndent(groupInspector, "", "  ")
+		http.HandleFunc(PACKAGES_URL_PREFIX, func(w http.ResponseWriter, r *http.Request) {
+			body, err := json.MarshalIndent(packageInspector, "", "  ")
 
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -442,7 +427,7 @@ func (i *defaultImageInspector) scanImage(s openscap.Scanner) ([]byte, []byte, e
 	}
 
 	htmlScanReport, err := ioutil.ReadFile(s.HTMLResultsFileName())
-	if err != nil {
+	if err != nil && i.opts.OpenScapHTML {
 		return []byte(""), []byte(""), fmt.Errorf("Unable to read %s HTML result file: %v\n", s.ScannerName(), err)
 	}
 
