@@ -47,8 +47,8 @@ type ImageInspectorOptions struct {
 	ScanType string
 	// ScanResultsDir is the directory that will contain the results of the scan
 	ScanResultsDir string
-	// HTML controls whether or not to generate an HTML report
-	Html bool
+	// OpenScapHTML controls whether or not to generate an HTML report
+	OpenScapHTML bool
 }
 
 // NewDefaultImageInspectorOptions provides a new ImageInspectorOptions with default values.
@@ -64,7 +64,7 @@ func NewDefaultImageInspectorOptions() *ImageInspectorOptions {
 		PasswordFile:   "",
 		ScanType:       "",
 		ScanResultsDir: "",
-		Html:           false,
+		OpenScapHTML:   false,
 	}
 }
 
@@ -94,8 +94,8 @@ func (i *ImageInspectorOptions) Validate() error {
 			return fmt.Errorf("%s is not a directory", i.ScanResultsDir)
 		}
 	}
-	if i.Html && (len(i.ScanType) == 0 || i.ScanType != "openscap") {
-		return fmt.Errorf("html can be used only when specifying scan-type as \"openscap\"")
+	if i.OpenScapHTML && (len(i.ScanType) == 0 || i.ScanType != "openscap") {
+		return fmt.Errorf("OpenScapHtml can be used only when specifying scan-type as \"openscap\"")
 	}
 	for _, fl := range append(i.DockerCfg.Values, i.PasswordFile) {
 		if len(fl) > 0 {
