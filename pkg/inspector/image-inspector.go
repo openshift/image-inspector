@@ -18,6 +18,7 @@ import (
 	"crypto/rand"
 
 	docker "github.com/fsouza/go-dockerclient"
+	"github.com/openshift/image-inspector/pkg/content"
 	"github.com/openshift/image-inspector/pkg/openscap"
 	"golang.org/x/net/webdav"
 
@@ -38,6 +39,9 @@ const (
 	METADATA_URL_PATH        = API_URL_PREFIX + "/" + VERSION_TAG + "/metadata"
 	OPENSCAP_URL_PATH        = API_URL_PREFIX + "/" + VERSION_TAG + "/openscap"
 	OPENSCAP_REPORT_URL_PATH = API_URL_PREFIX + "/" + VERSION_TAG + "/openscap-report"
+	VERSION_URL_PREFIX       = API_URL_PREFIX + "/" + VERSION_TAG + "/version"
+	USERS_URL_PREFIX         = API_URL_PREFIX + "/" + VERSION_TAG + "/users"
+	GROUPS_URL_PREFIX        = API_URL_PREFIX + "/" + VERSION_TAG + "/groups"
 	CHROOT_SERVE_PATH        = "/"
 	OSCAP_CVE_DIR            = "/tmp"
 )
@@ -123,6 +127,15 @@ func (i *defaultImageInspector) Inspect() error {
 		}
 	}
 
+	versionInspector := content.NewDefaultVersionInspector()
+	versionInspector.Inspect(i.opts.DstPath)
+
+	userInspector := content.NewDefaultUserInspector()
+	userInspector.Inspect(i.opts.DstPath)
+
+	groupInspector := content.NewDefaultGroupInspector()
+	groupInspector.Inspect(i.opts.DstPath)
+
 	if len(i.opts.Serve) > 0 {
 		servePath := i.opts.DstPath
 		if i.opts.Chroot {
@@ -184,6 +197,35 @@ func (i *defaultImageInspector) Inspect() error {
 					http.Error(w, "OpenSCAP option was not chosen", http.StatusNotFound)
 				}
 			}
+		})
+		http.HandleFunc(VERSION_URL_PREFIX, func(w http.ResponseWriter, r *http.Request) {
+			body, err := json.MarshalIndent(versionInspector, "", "  ")
+
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			w.Write(body)
+		})
+
+		http.HandleFunc(USERS_URL_PREFIX, func(w http.ResponseWriter, r *http.Request) {
+			body, err := json.MarshalIndent(userInspector, "", "  ")
+
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			w.Write(body)
+		})
+
+		http.HandleFunc(GROUPS_URL_PREFIX, func(w http.ResponseWriter, r *http.Request) {
+			body, err := json.MarshalIndent(groupInspector, "", "  ")
+
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			w.Write(body)
 		})
 
 		http.Handle(CONTENT_URL_PREFIX, &webdav.Handler{
