@@ -39,7 +39,7 @@ func TestValidate(t *testing.T) {
 	goodScanOptions.Image = "image"
 	goodScanOptions.ScanType = "openscap"
 	goodScanOptions.ScanResultsDir = "."
-	goodScanOptions.Html = true
+	goodScanOptions.OpenScapHTML = true
 
 	notADirResScan := NewDefaultImageInspectorOptions()
 	notADirResScan.Image = "image"
@@ -57,11 +57,11 @@ func TestValidate(t *testing.T) {
 
 	badScanOptionsHTMLnoScan := NewDefaultImageInspectorOptions()
 	badScanOptionsHTMLnoScan.Image = "image"
-	badScanOptionsHTMLnoScan.Html = true
+	badScanOptionsHTMLnoScan.OpenScapHTML = true
 
 	badScanOptionsHTMLWrongScan := NewDefaultImageInspectorOptions()
 	badScanOptionsHTMLWrongScan.Image = "image"
-	badScanOptionsHTMLWrongScan.Html = true
+	badScanOptionsHTMLWrongScan.OpenScapHTML = true
 	badScanOptionsHTMLWrongScan.ScanType = "nosuchscantype"
 
 	tests := map[string]struct {

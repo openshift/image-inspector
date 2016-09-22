@@ -1,0 +1,4 @@
+[{"Name": "redhat-release-server","Version": "7.2","Architecture": "x86_64","Description": "Red Hat Enterprise Linux Server release files"}{"Name": "filesystem","Version": "3.2","Architecture": "x86_64","Description": "The filesystem package is one of the basic packages that is installed
+on a Linux system. Filesystem contains the basic directory layout
+for a Linux operating system, including the correct permissions for
+the "directories.""}]

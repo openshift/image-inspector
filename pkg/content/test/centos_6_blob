@@ -1,0 +1,547 @@
+[{"Name": "setup","Version": "2.8.14","Architecture": "noarch","Description": "The setup package contains a set of important system configuration and
+setup files, such as passwd, group, and profile."}{"Name": "basesystem","Version": "10.0","Architecture": "noarch","Description": "Basesystem defines the components of a basic Red Hat Enterprise Linux
+system (for example, the package installation order to use during
+bootstrapping). Basesystem should be in every installation of a system,
+and it should never be removed."}{"Name": "tzdata","Version": "2016f","Architecture": "noarch","Description": "This package contains data files with rules for various timezones around
+the world."}{"Name": "glibc-common","Version": "2.12","Architecture": "x86_64","Description": "The glibc-common package includes common binaries for the GNU libc
+libraries, as well as national language (locale) support."}{"Name": "glibc","Version": "2.12","Architecture": "x86_64","Description": "The glibc package contains standard libraries which are used by
+multiple programs on the system. In order to save disk space and
+memory, as well as to make upgrading easier, common system code is
+kept in one place and shared between programs. This particular package
+contains the most important sets of shared libraries: the standard C
+library and the standard math library. Without these two libraries, a
+Linux system will not function."}{"Name": "bash","Version": "4.1.2","Architecture": "x86_64","Description": "The GNU Bourne Again shell (Bash) is a shell or command language
+interpreter that is compatible with the Bourne shell (sh). Bash
+incorporates useful features from the Korn shell (ksh) and the C shell
+(csh). Most sh scripts can be run by bash without modification."}{"Name": "libcap","Version": "2.16","Architecture": "x86_64","Description": "libcap is a library for getting and setting POSIX.1e (formerly POSIX 6)
+draft 15 capabilities."}{"Name": "info","Version": "4.13a","Architecture": "x86_64","Description": "The GNU project uses the texinfo file format for much of its
+documentation. The info package provides a standalone TTY-based
+browser program for viewing texinfo files."}{"Name": "libacl","Version": "2.2.49","Architecture": "x86_64","Description": "This package contains the libacl.so dynamic library which contains
+the POSIX 1003.1e draft standard 17 functions for manipulating access
+control lists."}{"Name": "nspr","Version": "4.11.0","Architecture": "x86_64","Description": "NSPR provides platform independence for non-GUI operating system
+facilities. These facilities include threads, thread synchronization,
+normal file and network I/O, interval timing and calendar time, basic
+memory management (malloc and free) and shared library linking."}{"Name": "libcom_err","Version": "1.41.12","Architecture": "x86_64","Description": "This is the common error description library, part of e2fsprogs.
+
+libcom_err is an attempt to present a common error-handling mechanism."}{"Name": "libsepol","Version": "2.0.41","Architecture": "x86_64","Description": "Security-enhanced Linux is a feature of the Linux® kernel and a number
+of utilities with enhanced security functionality designed to add
+mandatory access controls to Linux.  The Security-enhanced Linux
+kernel contains new architectural components originally developed to
+improve the security of the Flask operating system. These
+architectural components provide general support for the enforcement
+of many kinds of mandatory access control policies, including those
+based on the concepts of Type Enforcement®, Role-based Access
+Control, and Multi-level Security.
+
+libsepol provides an API for the manipulation of SELinux binary policies.
+It is used by checkpolicy (the policy compiler) and similar tools, as well
+as by programs like load_policy that need to perform specific transformations
+on binary policies such as customizing policy boolean settings."}{"Name": "chkconfig","Version": "1.3.49.5","Architecture": "x86_64","Description": "Chkconfig is a basic system utility.  It updates and queries runlevel
+information for system services.  Chkconfig manipulates the numerous
+symbolic links in /etc/rc.d, to relieve system administrators of some
+of the drudgery of manually editing the symbolic links."}{"Name": "audit-libs","Version": "2.4.5","Architecture": "x86_64","Description": "The audit-libs package contains the dynamic libraries needed for
+applications to use the audit framework."}{"Name": "readline","Version": "6.0","Architecture": "x86_64","Description": "The Readline library provides a set of functions that allow users to
+edit command lines. Both Emacs and vi editing modes are available. The
+Readline library includes additional functions for maintaining a list
+of previously-entered command lines for recalling or editing those
+lines, and for performing csh-like history expansion on previous
+commands."}{"Name": "file-libs","Version": "5.04","Architecture": "x86_64","Description": "
+Libraries for applications using libmagic."}{"Name": "dbus-libs","Version": "1.2.24","Architecture": "x86_64","Description": "This package contains lowlevel libraries for accessing D-BUS."}{"Name": "sqlite","Version": "3.6.20","Architecture": "x86_64","Description": "SQLite is a C library that implements an SQL database engine. A large
+subset of SQL92 is supported. A complete database is stored in a
+single disk file. The API is designed for convenience and ease of use.
+Applications that link against SQLite can enjoy the power and
+flexibility of an SQL database without the administrative hassles of
+supporting a separate database server.  Version 2 and version 3 binaries
+are named to permit each to be installed on a single host"}{"Name": "libuuid","Version": "2.17.2","Architecture": "x86_64","Description": "This is the universally unique ID library, part of util-linux-ng.
+
+The libuuid library generates and parses 128-bit universally unique
+id's (UUID's).  A UUID is an identifier that is unique across both
+space and time, with respect to the space of all UUIDs.  A UUID can
+be used for multiple purposes, from tagging objects with an extremely
+short lifetime, to reliably identifying very persistent objects
+across a network.
+
+See also the "uuid" package, which is a separate implementation."}{"Name": "xz-libs","Version": "4.999.9","Architecture": "x86_64","Description": "Libraries for decoding files compressed with LZMA or XZ utils."}{"Name": "libgpg-error","Version": "1.7","Architecture": "x86_64","Description": "This is a library that defines common error values for all GnuPG
+components.  Among these are GPG, GPGSM, GPGME, GPG-Agent, libgcrypt,
+pinentry, SmartCard Daemon and possibly more in the future."}{"Name": "pcre","Version": "7.8","Architecture": "x86_64","Description": "Perl-compatible regular expression library.
+PCRE has its own native API, but a set of "wrapper" functions that are based on
+the POSIX API are also supplied in the library libpcreposix. Note that this
+just provides a POSIX calling interface to PCRE: the regular expressions
+themselves still follow Perl syntax and semantics. The header file
+for the POSIX-style functions is called pcreposix.h."}{"Name": "findutils","Version": "4.4.2","Architecture": "x86_64","Description": "The findutils package contains programs which will help you locate
+files on your system.  The find utility searches through a hierarchy
+of directories looking for files which match a certain set of criteria
+(such as a filename pattern).  The xargs utility builds and executes
+command lines from standard input arguments (usually lists of file
+names generated by the find command).
+
+You should install findutils because it includes tools that are very
+useful for finding things on your system."}{"Name": "expat","Version": "2.0.1","Architecture": "x86_64","Description": "This is expat, the C library for parsing XML, written by James Clark. Expat
+is a stream oriented XML parser. This means that you register handlers with
+the parser prior to starting the parse. These handlers are called when the
+parser discovers the associated structures in the document being parsed. A
+start tag is an example of the kind of structures for which you may
+register handlers."}{"Name": "p11-kit","Version": "0.18.5","Architecture": "x86_64","Description": "p11-kit provides a way to load and enumerate PKCS#11 modules, as well
+as a standard configuration setup for installing PKCS#11 modules in
+such a way that they're discoverable."}{"Name": "libgcrypt","Version": "1.4.5","Architecture": "x86_64","Description": "Libgcrypt is a general purpose crypto library based on the code used
+in GNU Privacy Guard.  This is a development version."}{"Name": "upstart","Version": "0.6.5","Architecture": "x86_64","Description": "Upstart is an event-based replacement for the /sbin/init daemon which
+handles starting of tasks and services during boot, stopping them
+during shutdown and supervising them while the system is running."}{"Name": "libusb","Version": "0.1.12","Architecture": "x86_64","Description": "This package provides a way for applications to access USB devices."}{"Name": "pinentry","Version": "0.7.6","Architecture": "x86_64","Description": "Pinentry is a collection of simple PIN or passphrase entry dialogs which
+utilize the Assuan protocol as described by the aegypten project; see
+http://www.gnupg.org/aegypten/ for details.
+This package contains the curses (text) based version of the PIN entry dialog."}{"Name": "procps","Version": "3.2.8","Architecture": "x86_64","Description": "The procps package contains a set of system utilities that provide
+system information. Procps includes ps, free, skill, pkill, pgrep,
+snice, tload, top, uptime, vmstat, w, watch and pdwx. The ps command
+displays a snapshot of running processes. The top command provides
+a repetitive update of the statuses of running processes. The free
+command displays the amounts of free and used memory on your
+system. The skill command sends a terminate command (or another
+specified signal) to a specified set of processes. The snice
+command is used to change the scheduling priority of specified
+processes. The tload command prints a graph of the current system
+load average to a specified tty. The uptime command displays the
+current time, how long the system has been running, how many users
+are logged on, and system load averages for the past one, five,
+and fifteen minutes. The w command displays a list of the users
+who are currently logged on and what they are running. The watch
+program watches a running program. The vmstat command displays
+virtual memory statistics about processes, memory, paging, block
+I/O, traps, and CPU activity. The pwdx command reports the current
+working directory of a process or processes."}{"Name": "tar","Version": "1.23","Architecture": "x86_64","Description": "The GNU tar program saves many files together in one archive and can
+restore individual files (or all of the files) from that archive. Tar
+can also be used to add supplemental files to an archive and to update
+or list files in the archive. Tar includes multivolume support,
+automatic archive compression/decompression, the ability to perform
+remote archives, and the ability to perform incremental and full
+backups.
+
+If you want to use tar for remote backups, you also need to install
+the rmt package."}{"Name": "checkpolicy","Version": "2.0.22","Architecture": "x86_64","Description": "Security-enhanced Linux is a feature of the Linux® kernel and a number
+of utilities with enhanced security functionality designed to add
+mandatory access controls to Linux.  The Security-enhanced Linux
+kernel contains new architectural components originally developed to
+improve the security of the Flask operating system. These
+architectural components provide general support for the enforcement
+of many kinds of mandatory access control policies, including those
+based on the concepts of Type Enforcement®, Role-based Access
+Control, and Multi-level Security.
+
+This package contains checkpolicy, the SELinux policy compiler.
+Only required for building policies."}{"Name": "libss","Version": "1.41.12","Architecture": "x86_64","Description": "This is libss, a command line interface parsing library, part of e2fsprogs.
+
+This package includes a tool that parses a command table to generate
+a simple command-line interface parser, the include files needed to
+compile and use it, and the static libs.
+
+It was originally inspired by the Multics SubSystem library."}{"Name": "db4-utils","Version": "4.7.25","Architecture": "x86_64","Description": "The Berkeley Database (Berkeley DB) is a programmatic toolkit that
+provides embedded database support for both traditional and
+client/server applications. Berkeley DB includes B+tree, Extended
+Linear Hashing, Fixed and Variable-length record access methods,
+transactions, locking, logging, shared memory caching, and database
+recovery. DB supports C, C++, Java and Perl APIs."}{"Name": "binutils","Version": "2.20.51.0.2","Architecture": "x86_64","Description": "Binutils is a collection of binary utilities, including ar (for
+creating, modifying and extracting from archives), as (a family of GNU
+assemblers), gprof (for displaying call graph profile data), ld (the
+GNU linker), nm (for listing symbols from object files), objcopy (for
+copying and translating object files), objdump (for displaying
+information from object files), ranlib (for generating an index for
+the contents of an archive), readelf (for displaying detailed
+information about binary files), size (for listing the section sizes
+of an object or archive file), strings (for listing printable strings
+from files), strip (for discarding symbols), and addr2line (for
+converting addresses to file and line)."}{"Name": "which","Version": "2.19","Architecture": "x86_64","Description": "The which command shows the full pathname of a specified program, if
+the specified program is in your PATH."}{"Name": "dash","Version": "0.5.5.1","Architecture": "x86_64","Description": "DASH is a POSIX-compliant implementation of /bin/sh that aims to be as small as
+possible. It does this without sacrificing speed where possible. In fact, it is
+significantly faster than bash (the GNU Bourne-Again SHell) for most tasks."}{"Name": "groff","Version": "1.18.1.4","Architecture": "x86_64","Description": "Groff is a document formatting system. Groff takes standard text and
+formatting commands as input and produces formatted output. The
+created documents can be shown on a display or printed on a printer.
+Groff's formatting commands allow you to specify font type and size,
+bold type, italic type, the number and size of columns on a page, and
+more.
+
+Groff can also be used to format man pages. If you are going to use
+groff with the X Window System, you will also need to install the
+groff-gxditview package."}{"Name": "coreutils-libs","Version": "8.4","Architecture": "x86_64","Description": "Libraries for coreutils package."}{"Name": "cracklib","Version": "2.8.16","Architecture": "x86_64","Description": "CrackLib tests passwords to determine whether they match certain
+security-oriented characteristics, with the purpose of stopping users
+from choosing passwords that are easy to guess. CrackLib performs
+several tests on passwords: it tries to generate words from a username
+and gecos entry and checks those words against the password; it checks
+for simplistic patterns in passwords; and it checks for the password
+in a dictionary.
+
+CrackLib is actually a library containing a particular C function
+which is used to check the password, as well as other C
+functions. CrackLib is not a replacement for a passwd program; it must
+be used in conjunction with an existing passwd program.
+
+Install the cracklib package if you need a program to check users'
+passwords to see if they are at least minimally secure. If you install
+CrackLib, you will also want to install the cracklib-dicts package."}{"Name": "coreutils","Version": "8.4","Architecture": "x86_64","Description": "These are the GNU core utilities.  This package is the combination of
+the old GNU fileutils, sh-utils, and textutils packages."}{"Name": "module-init-tools","Version": "3.9","Architecture": "x86_64","Description": "The module-init-tools package includes various programs needed for automatic
+loading and unloading of modules under 2.6 and later kernels, as well
+as other module management programs. Device drivers and filesystems
+are two examples of loaded and unloaded modules."}{"Name": "nss","Version": "3.21.0","Architecture": "x86_64","Description": "Network Security Services (NSS) is a set of libraries designed to
+support cross-platform development of security-enabled client and
+server applications. Applications built with NSS can support SSL v2
+and v3, TLS, PKCS #5, PKCS #7, PKCS #11, PKCS #12, S/MIME, X.509
+v3 certificates, and other security standards."}{"Name": "nss-tools","Version": "3.21.0","Architecture": "x86_64","Description": "Network Security Services (NSS) is a set of libraries designed to
+support cross-platform development of security-enabled client and
+server applications. Applications built with NSS can support SSL v2
+and v3, TLS, PKCS #5, PKCS #7, PKCS #11, PKCS #12, S/MIME, X.509
+v3 certificates, and other security standards.
+
+Install the nss-tools package if you need command-line tools to
+manipulate the NSS certificate and key database."}{"Name": "mingetty","Version": "1.08","Architecture": "x86_64","Description": "The mingetty program is a lightweight, minimalist getty program for
+use only on virtual consoles.  Mingetty is not suitable for serial
+lines (you should use the mgetty program in that case)."}{"Name": "krb5-libs","Version": "1.10.3","Architecture": "x86_64","Description": "Kerberos is a network authentication system. The krb5-libs package
+contains the shared libraries needed by Kerberos 5. If you are using
+Kerberos, you need to install this package."}{"Name": "libssh2","Version": "1.4.2","Architecture": "x86_64","Description": "libssh2 is a library implementing the SSH2 protocol as defined by
+Internet Drafts: SECSH-TRANS(22), SECSH-USERAUTH(25),
+SECSH-CONNECTION(23), SECSH-ARCH(20), SECSH-FILEXFER(06)*,
+SECSH-DHGEX(04), and SECSH-NUMBERS(10)."}{"Name": "rpm-libs","Version": "4.8.0","Architecture": "x86_64","Description": "This package contains the RPM shared libraries."}{"Name": "rpm","Version": "4.8.0","Architecture": "x86_64","Description": "The RPM Package Manager (RPM) is a powerful command line driven
+package management system capable of installing, uninstalling,
+verifying, querying, and updating software packages. Each software
+package consists of an archive of files along with information about
+the package like its version, a description, etc."}{"Name": "gnupg2","Version": "2.0.14","Architecture": "x86_64","Description": "GnuPG is GNU's tool for secure communication and data storage.  It can
+be used to encrypt data and to create digital signatures.  It includes
+an advanced key management facility and is compliant with the proposed
+OpenPGP Internet standard as described in RFC2440 and the S/MIME
+standard as described by several RFCs.
+
+GnuPG 2.0 is a newer version of GnuPG with additional support for
+S/MIME.  It has a different design philosophy that splits
+functionality up into several modules. The S/MIME and smartcard functionality
+is provided by the gnupg2-smime package."}{"Name": "bind-libs","Version": "9.8.2","Architecture": "x86_64","Description": "Contains libraries used by both the bind server package as well as the utils
+packages."}{"Name": "libsemanage","Version": "2.0.43","Architecture": "x86_64","Description": "Security-enhanced Linux is a feature of the Linux® kernel and a number
+of utilities with enhanced security functionality designed to add
+mandatory access controls to Linux.  The Security-enhanced Linux
+kernel contains new architectural components originally developed to
+improve the security of the Flask operating system. These
+architectural components provide general support for the enforcement
+of many kinds of mandatory access control policies, including those
+based on the concepts of Type Enforcement®, Role-based Access
+Control, and Multi-level Security.
+
+libsemanage provides an API for the manipulation of SELinux binary policies.
+It is used by checkpolicy (the policy compiler) and similar tools, as well
+as by programs like load_policy that need to perform specific transformations
+on binary policies such as customizing policy boolean settings."}{"Name": "libutempter","Version": "1.1.5","Architecture": "x86_64","Description": "This library provides interface for terminal emulators such as
+screen and xterm to record user sessions to utmp and wtmp files."}{"Name": "plymouth-core-libs","Version": "0.8.3","Architecture": "x86_64","Description": "This package contains the libply and libply-splash-core libraries
+used by Plymouth."}{"Name": "libffi","Version": "3.0.5","Architecture": "x86_64","Description": "Compilers for high level languages generate code that follow certain
+conventions.  These conventions are necessary, in part, for separate
+compilation to work.  One such convention is the "calling convention".
+The calling convention is a set of assumptions made by the compiler
+about where function arguments will be found on entry to a function.  A
+calling convention also specifies where the return value for a function
+is found.
+
+Some programs may not know at the time of compilation what arguments
+are to be passed to a function.  For instance, an interpreter may be
+told at run-time about the number and types of arguments used to call a
+given function.  `Libffi' can be used in such programs to provide a
+bridge from the interpreter program to compiled code.
+
+The `libffi' library provides a portable, high level programming
+interface to various calling conventions.  This allows a programmer to
+call any function specified by a call interface description at run time.
+
+FFI stands for Foreign Function Interface.  A foreign function
+interface is the popular name for the interface that allows code
+written in one language to call code written in another language.  The
+`libffi' library really only provides the lowest, machine dependent
+layer of a fully featured foreign function interface.  A layer must
+exist above `libffi' that handles type conversions for values passed
+between the two languages."}{"Name": "python-libs","Version": "2.6.6","Architecture": "x86_64","Description": "This package contains runtime libraries for use by Python:
+- the libpython dynamic library, for use by applications that embed Python as
+a scripting language, and by the main "python" executable
+- the Python standard library"}{"Name": "pygpgme","Version": "0.1","Architecture": "x86_64","Description": "PyGPGME is a Python module that lets you sign, verify, encrypt and decrypt
+files using the OpenPGP format.  It is built on top of GNU Privacy Guard and
+the GPGME library."}{"Name": "python-urlgrabber","Version": "3.9.1","Architecture": "noarch","Description": "A high-level cross-protocol url-grabber for python supporting HTTP, FTP
+and file locations.  Features include keepalive, byte ranges, throttling,
+authentication, proxies and more."}{"Name": "pkgconfig","Version": "0.23","Architecture": "x86_64","Description": "The pkgconfig tool determines compilation options. For each required
+library, it reads the configuration file and outputs the necessary
+compiler and linker flags."}{"Name": "glib2","Version": "2.28.8","Architecture": "x86_64","Description": "GLib is the low-level core library that forms the basis for projects
+such as GTK+ and GNOME. It provides data structure handling for C,
+portability wrappers, and interfaces for such runtime functionality
+as an event loop, threads, dynamic loading, and an object system."}{"Name": "yum-metadata-parser","Version": "1.1.2","Architecture": "x86_64","Description": "Fast metadata parser for yum implemented in C."}{"Name": "yum","Version": "3.2.29","Architecture": "noarch","Description": "Yum is a utility that can check for and automatically download and
+install updated RPM packages. Dependencies are obtained and downloaded
+automatically, prompting the user for permission as necessary."}{"Name": "passwd","Version": "0.77","Architecture": "x86_64","Description": "This package contains a system utility (passwd) which sets
+or changes passwords, using PAM (Pluggable Authentication
+Modules) library."}{"Name": "bind-utils","Version": "9.8.2","Architecture": "x86_64","Description": "Bind-utils contains a collection of utilities for querying DNS (Domain
+Name System) name servers to find out information about Internet
+hosts. These tools will provide you with the IP addresses for given
+host names, as well as other information about registered domains and
+network addresses.
+
+You should install bind-utils if you need to get information from DNS name
+servers."}{"Name": "vim-minimal","Version": "7.4.629","Architecture": "x86_64","Description": "VIM (VIsual editor iMproved) is an updated and improved version of the
+vi editor.  Vi was the first real screen-based editor for UNIX, and is
+still very popular.  VIM improves on vi by adding new features:
+multiple windows, multi-level undo, block highlighting and more. The
+vim-minimal package includes a minimal version of VIM, which is
+installed into /bin/vi for use when only the root partition is
+present. NOTE: The online help is only available when the vim-common
+package is installed."}{"Name": "libgcc","Version": "4.4.7","Architecture": "x86_64","Description": "This package contains GCC shared support library which is needed
+e.g. for exception handling support."}{"Name": "filesystem","Version": "2.4.30","Architecture": "x86_64","Description": "The filesystem package is one of the basic packages that is installed
+on a Linux system. Filesystem contains the basic directory layout
+for a Linux operating system, including the correct permissions for
+the directories."}{"Name": "ncurses-base","Version": "5.7","Architecture": "x86_64","Description": "This package contains descriptions of common terminals. Other terminal
+descriptions are included in the ncurses-term package."}{"Name": "nss-softokn-freebl","Version": "3.14.3","Architecture": "x86_64","Description": "NSS Softoken Cryptographic Module Freelb Library
+
+Install the nss-softokn-freebl package if you need the freebl
+library."}{"Name": "ncurses-libs","Version": "5.7","Architecture": "x86_64","Description": "The curses library routines are a terminal-independent method of
+updating character screens with reasonable optimization.  The ncurses
+(new curses) library is a freely distributable replacement for the
+discontinued 4.4 BSD classic curses library.
+
+This package contains the ncurses libraries."}{"Name": "libattr","Version": "2.4.44","Architecture": "x86_64","Description": "This package contains the libattr.so dynamic library which contains
+the extended attribute system calls and library functions."}{"Name": "zlib","Version": "1.2.3","Architecture": "x86_64","Description": "Zlib is a general-purpose, patent-free, lossless data compression
+library which is used by many different programs."}{"Name": "popt","Version": "1.13","Architecture": "x86_64","Description": "Popt is a C library for parsing command line parameters. Popt was
+heavily influenced by the getopt() and getopt_long() functions, but
+it improves on them by allowing more powerful argument expansion.
+Popt can parse arbitrary argv[] style arrays and automatically set
+variables based on command line arguments. Popt allows command line
+arguments to be aliased via configuration files and includes utility
+functions for parsing arbitrary strings into argv[] arrays using
+shell-like rules."}{"Name": "db4","Version": "4.7.25","Architecture": "x86_64","Description": "The Berkeley Database (Berkeley DB) is a programmatic toolkit that
+provides embedded database support for both traditional and
+client/server applications. The Berkeley DB includes B+tree, Extended
+Linear Hashing, Fixed and Variable-length record access methods,
+transactions, locking, logging, shared memory caching, and database
+recovery. The Berkeley DB supports C, C++, Java, and Perl APIs. It is
+used by many applications, including Python and Perl, so this should
+be installed on all systems."}{"Name": "nss-util","Version": "3.21.0","Architecture": "x86_64","Description": "Utilities for Network Security Services and the Softoken module"}{"Name": "bzip2-libs","Version": "1.0.5","Architecture": "x86_64","Description": "
+Libraries for applications using the bzip2 compression format."}{"Name": "libselinux","Version": "2.0.94","Architecture": "x86_64","Description": "Security-enhanced Linux is a feature of the Linux® kernel and a number
+of utilities with enhanced security functionality designed to add
+mandatory access controls to Linux.  The Security-enhanced Linux
+kernel contains new architectural components originally developed to
+improve the security of the Flask operating system. These
+architectural components provide general support for the enforcement
+of many kinds of mandatory access control policies, including those
+based on the concepts of Type Enforcement®, Role-based Access
+Control, and Multi-level Security.
+
+libselinux provides an API for SELinux applications to get and set
+process and file security contexts and to obtain security policy
+decisions.  Required for any applications that use the SELinux API."}{"Name": "sed","Version": "4.2.1","Architecture": "x86_64","Description": "The sed (Stream EDitor) editor is a stream or batch (non-interactive)
+editor.  Sed takes text as input, performs an operation or set of
+operations on the text and outputs the modified text.  The operations
+that sed performs (substitutions, deletions, insertions, etc.) can be
+specified in a script file or from the command line."}{"Name": "libidn","Version": "1.18","Architecture": "x86_64","Description": "GNU Libidn is an implementation of the Stringprep, Punycode and
+IDNA specifications defined by the IETF Internationalized Domain
+Names (IDN) working group, used for internationalized domain
+names."}{"Name": "libxml2","Version": "2.7.6","Architecture": "x86_64","Description": "This library allows to manipulate XML files. It includes support
+to read, modify and write XML and HTML files. There is DTDs support
+this includes parsing and validation even with complex DtDs, either
+at parse time or later once the document has been modified. The output
+can be a simple SAX stream or and in-memory DOM like representations.
+In this case one can use the built-in XPath and XPointer implementation
+to select subnodes or ranges. A flexible Input/Output mechanism is
+available, with existing HTTP and FTP modules and combined to an
+URI library."}{"Name": "libstdc++","Version": "4.4.7","Architecture": "x86_64","Description": "The libstdc++ package contains a rewritten standard compliant GCC Standard
+C++ Library."}{"Name": "lua","Version": "5.1.4","Architecture": "x86_64","Description": "Lua is a powerful light-weight programming language designed for
+extending applications. Lua is also frequently used as a
+general-purpose, stand-alone language. Lua is free software.
+Lua combines simple procedural syntax with powerful data description
+constructs based on associative arrays and extensible semantics. Lua
+is dynamically typed, interpreted from bytecodes, and has automatic
+memory management with garbage collection, making it ideal for
+configuration, scripting, and rapid prototyping."}{"Name": "gawk","Version": "3.1.7","Architecture": "x86_64","Description": "The gawk package contains the GNU version of awk, a text processing
+utility. Awk interprets a special-purpose programming language to do
+quick and easy text pattern matching and reformatting jobs.
+
+Install the gawk package if you need a text processing utility. Gawk is
+considered to be a standard Linux tool for processing text."}{"Name": "libblkid","Version": "2.17.2","Architecture": "x86_64","Description": "This is block device identification library, part of util-linux-ng."}{"Name": "elfutils-libelf","Version": "0.164","Architecture": "x86_64","Description": "The elfutils-libelf package provides a DSO which allows reading and
+writing ELF files on a high level.  Third party programs depend on
+this package to read internals of ELF files.  The programs of the
+elfutils package use it also to generate new ELF files."}{"Name": "nss-softokn","Version": "3.14.3","Architecture": "x86_64","Description": "Network Security Services Softoken Cryptographic Module"}{"Name": "grep","Version": "2.20","Architecture": "x86_64","Description": "The GNU versions of commonly used grep utilities. Grep searches through
+textual input for lines which contain a match to a specified pattern and then
+prints the matching lines. GNU's grep utilities include grep, egrep and fgrep.
+
+GNU grep is needed by many scripts, so it shall be installed on every system."}{"Name": "cpio","Version": "2.10","Architecture": "x86_64","Description": "GNU cpio copies files into or out of a cpio or tar archive.  Archives
+are files which contain a collection of other files plus information
+about them, such as their file name, owner, timestamps, and access
+permissions.  The archive can be another file on the disk, a magnetic
+tape, or a pipe.  GNU cpio supports the following archive formats:  binary,
+old ASCII, new ASCII, crc, HPUX binary, HPUX old ASCII, old tar and POSIX.1
+tar.  By default, cpio creates binary format archives, so that they are
+compatible with older cpio programs.  When it is extracting files from
+archives, cpio automatically recognizes which kind of archive it is reading
+and can read archives created on machines with a different byte-order.
+
+Install cpio if you need a program to manage file archives."}{"Name": "pth","Version": "2.0.7","Architecture": "x86_64","Description": "Pth is a very portable POSIX/ANSI-C based library for Unix platforms
+which provides non-preemptive priority-based scheduling for multiple
+threads of execution ("multithreading") inside server applications.
+All threads run in the same address space of the server application,
+but each thread has it's own individual program-counter, run-time
+stack, signal mask and errno variable."}{"Name": "libtasn1","Version": "2.3","Architecture": "x86_64","Description": "This is the ASN.1 library used in GNUTLS.  More up to date information can
+be found at http://www.gnu.org/software/gnutls and http://www.gnutls.org"}{"Name": "p11-kit-trust","Version": "0.18.5","Architecture": "x86_64","Description": "The p11-kit-trust package contains a system trust PKCS#11 module which
+contains certificate anchors and black lists."}{"Name": "libnih","Version": "1.0.1","Architecture": "x86_64","Description": "libnih is a small library for C application development containing functions
+that, despite its name, are not implemented elsewhere in the standard library
+set.
+
+libnih is roughly equivalent to other C libraries such as glib, except that its
+focus is on a small size and intended for applications that sit very low in the
+software stack, especially outside of /usr."}{"Name": "gmp","Version": "4.3.1","Architecture": "x86_64","Description": "The gmp package contains GNU MP, a library for arbitrary precision
+arithmetic, signed integers operations, rational numbers and floating
+point numbers. GNU MP is designed for speed, for both small and very
+large operands. GNU MP is fast because it uses fullwords as the basic
+arithmetic type, it uses fast algorithms, it carefully optimizes
+assembly code for many CPUs' most common inner loops, and it generally
+emphasizes speed over simplicity/elegance in its operations.
+
+Install the gmp package if you need a fast arbitrary precision
+library."}{"Name": "file","Version": "5.04","Architecture": "x86_64","Description": "The file command is used to identify a particular file according to the
+type of data contained by the file.  File can identify many different
+file types, including ELF binaries, system libraries, RPM packages, and
+different graphics formats."}{"Name": "net-tools","Version": "1.60","Architecture": "x86_64","Description": "The net-tools package contains basic networking tools,
+including ifconfig, netstat, route, and others.
+Most of them are obsolete. For replacement check iproute package."}{"Name": "psmisc","Version": "22.6","Architecture": "x86_64","Description": "The psmisc package contains utilities for managing processes on your
+system: pstree, killall and fuser.  The pstree command displays a tree
+structure of all of the running processes on your system.  The killall
+command sends a specified signal (SIGTERM if nothing is specified) to
+processes identified by name.  The fuser command identifies the PIDs
+of processes that are using specified files or filesystems."}{"Name": "libselinux-utils","Version": "2.0.94","Architecture": "x86_64","Description": "The libselinux-utils package contains the utilities"}{"Name": "bzip2","Version": "1.0.5","Architecture": "x86_64","Description": "Bzip2 is a freely available, patent-free, high quality data compressor.
+Bzip2 compresses files to within 10 to 15 percent of the capabilities
+of the best techniques available.  However, bzip2 has the added benefit
+of being approximately two times faster at compression and six times
+faster at decompression than those techniques.  Bzip2 is not the
+fastest compression utility, but it does strike a balance between speed
+and compression capability.
+
+Install bzip2 if you need a compression utility."}{"Name": "cyrus-sasl-lib","Version": "2.1.23","Architecture": "x86_64","Description": "The cyrus-sasl-lib package contains shared libraries which are needed by
+applications which use the Cyrus SASL library."}{"Name": "make","Version": "3.81","Architecture": "x86_64","Description": "A GNU tool for controlling the generation of executables and other
+non-source files of a program from the program's source files. Make
+allows users to build and install packages without any significant
+knowledge about the details of the build process. The details about
+how the program should be built are provided for make in the program's
+makefile."}{"Name": "diffutils","Version": "2.8.1","Architecture": "x86_64","Description": "Diffutils includes four utilities: diff, cmp, diff3 and sdiff. Diff
+compares two files and shows the differences, line by line.  The cmp
+command shows the offset and line numbers where two files differ, or
+cmp can show the characters that differ between the two files.  The
+diff3 command shows the differences between three files.  Diff3 can be
+used when two people have made independent changes to a common
+original; diff3 can produce a merged file that contains both sets of
+changes and warnings about conflicts.  The sdiff command can be used
+to merge two files interactively.
+
+Install diffutils if you need to compare text files."}{"Name": "ncurses","Version": "5.7","Architecture": "x86_64","Description": "The curses library routines are a terminal-independent method of
+updating character screens with reasonable optimization.  The ncurses
+(new curses) library is a freely distributable replacement for the
+discontinued 4.4 BSD classic curses library.
+
+This package contains support utilities, including a terminfo compiler
+tic, a decompiler infocmp, clear, tput, tset, and a termcap conversion
+tool captoinfo."}{"Name": "less","Version": "436","Architecture": "x86_64","Description": "The less utility is a text file browser that resembles more, but has
+more capabilities.  Less allows you to move backwards in the file as
+well as forwards.  Since less doesn't have to read the entire input file
+before it starts, less starts up more quickly than text editors (for
+example, vi).
+
+You should install less because it is a basic utility for viewing text
+files, and you'll use it frequently."}{"Name": "gzip","Version": "1.3.12","Architecture": "x86_64","Description": "The gzip package contains the popular GNU gzip data compression
+program. Gzipped files have a .gz extension.
+
+Gzip should be installed on your system, because it is a
+very commonly used data compression program."}{"Name": "cracklib-dicts","Version": "2.8.16","Architecture": "x86_64","Description": "The cracklib-dicts package includes the CrackLib dictionaries.
+CrackLib will need to use the dictionary appropriate to your system,
+which is normally put in /usr/share/dict/words. Cracklib-dicts also
+contains the utilities necessary for the creation of new dictionaries.
+
+If you are installing CrackLib, you should also install cracklib-dicts."}{"Name": "pam","Version": "1.1.1","Architecture": "x86_64","Description": "PAM (Pluggable Authentication Modules) is a system security tool that
+allows system administrators to set authentication policy without
+having to recompile programs that handle authentication."}{"Name": "plymouth-scripts","Version": "0.8.3","Architecture": "x86_64","Description": "This package contains scripts that help integrate Plymouth with
+the system."}{"Name": "ca-certificates","Version": "2015.2.6","Architecture": "noarch","Description": "This package contains the set of CA certificates chosen by the
+Mozilla Foundation for use with the Internet PKI."}{"Name": "nss-sysinit","Version": "3.21.0","Architecture": "x86_64","Description": "Default Operating System module that manages applications loading
+NSS globally on the system. This module loads the system defined
+PKCS #11 modules for NSS and chains with other NSS modules to load
+any system or user configured modules."}{"Name": "ethtool","Version": "3.5","Architecture": "x86_64","Description": "This utility allows querying and changing settings such as speed,
+port, autonegotiation, PCI locations and checksum offload on many
+network devices, especially of ethernet devices."}{"Name": "keyutils-libs","Version": "1.4","Architecture": "x86_64","Description": "This package provides a wrapper library for the key management facility system
+calls."}{"Name": "openssl","Version": "1.0.1e","Architecture": "x86_64","Description": "The OpenSSL toolkit provides support for secure communications between
+machines. OpenSSL includes a certificate management tool and shared
+libraries which provide various cryptographic algorithms and
+protocols."}{"Name": "libcurl","Version": "7.19.7","Architecture": "x86_64","Description": "This package provides a way for applications to use FTP, HTTP, Gopher and
+other servers for getting files."}{"Name": "curl","Version": "7.19.7","Architecture": "x86_64","Description": "cURL is a tool for getting files from HTTP, FTP, FILE, LDAP, LDAPS,
+DICT, TELNET and TFTP servers, using any of the supported protocols.
+cURL is designed to work without user interaction or any kind of
+interactivity. cURL offers many useful capabilities, like proxy support,
+user authentication, FTP upload, HTTP post, and file transfer resume."}{"Name": "openldap","Version": "2.4.40","Architecture": "x86_64","Description": "OpenLDAP is an open source suite of LDAP (Lightweight Directory Access
+Protocol) applications and development tools. LDAP is a set of
+protocols for accessing directory services (usually phone book style
+information, but other information is possible) over the Internet,
+similar to the way DNS (Domain Name System) information is propagated
+over the Internet. The openldap package contains configuration files,
+libraries, and documentation for OpenLDAP."}{"Name": "gpgme","Version": "1.1.8","Architecture": "x86_64","Description": "GnuPG Made Easy (GPGME) is a library designed to make access to GnuPG
+easier for applications.  It provides a high-level crypto API for
+encryption, decryption, signing, signature verification and key
+management."}{"Name": "ustr","Version": "1.0.4","Architecture": "x86_64","Description": " Micro string library, very low overhead from plain strdup() (Ave. 44% for
+0-20B strings). Very easy to use in existing C code. At it's simplest you can
+just include a single header file into your .c and start using it.
+ This package also distributes pre-built shared libraries."}{"Name": "shadow-utils","Version": "4.1.5.1","Architecture": "x86_64","Description": "The shadow-utils package includes the necessary programs for
+converting UNIX password files to the shadow password format, plus
+programs for managing user and group accounts. The pwconv command
+converts passwords to the shadow password format. The pwunconv command
+unconverts shadow passwords and generates a passwd file (a standard
+UNIX password file). The pwck command checks the integrity of password
+and shadow files. The lastlog command prints out the last login times
+for all users. The useradd, userdel, and usermod commands are used for
+managing user accounts. The groupadd, groupdel, and groupmod commands
+are used for managing group accounts."}{"Name": "MAKEDEV","Version": "3.24","Architecture": "x86_64","Description": "This package contains the MAKEDEV program, which makes it easier to create
+and maintain the files in the /dev directory.  /dev directory files
+correspond to a particular device supported by Linux (serial or printer
+ports, scanners, sound cards, tape drives, CD-ROM drives, hard drives,
+etc.) and interface with the drivers in the kernel.
+
+You should install the MAKEDEV package because the MAKEDEV utility makes
+it easy to manage the /dev directory device files."}{"Name": "gdbm","Version": "1.8.0","Architecture": "x86_64","Description": "Gdbm is a GNU database indexing library, including routines which use
+extensible hashing.  Gdbm works in a similar way to standard UNIX dbm
+routines.  Gdbm is useful for developers who write C applications and
+need access to a simple and efficient database or who are building C
+applications which will use such a database.
+
+If you're a C developer and your programs need access to simple
+database routines, you should install gdbm.  You'll also need to
+install gdbm-devel."}{"Name": "python","Version": "2.6.6","Architecture": "x86_64","Description": "Python is an interpreted, interactive, object-oriented programming
+language often compared to Tcl, Perl, Scheme or Java. Python includes
+modules, classes, exceptions, very high level dynamic data types and
+dynamic typing. Python supports interfaces to many system calls and
+libraries, as well as to various windowing systems (X11, Motif, Tk,
+Mac and MFC).
+
+Programmers can write new built-in modules for Python in C or C++.
+Python can be used as an extension language for applications that need
+a programmable interface.
+
+Note that documentation for Python is provided in the python-docs
+package.
+
+This package provides the "python" executable; most of the actual
+implementation is within the "python-libs" package."}{"Name": "rpm-python","Version": "4.8.0","Architecture": "x86_64","Description": "The rpm-python package contains a module that permits applications
+written in the Python programming language to use the interface
+supplied by RPM Package Manager libraries.
+
+This package should be installed if you want to develop Python
+programs that will manipulate RPM packages and databases."}{"Name": "python-pycurl","Version": "7.19.0","Architecture": "x86_64","Description": "PycURL is a Python interface to libcurl. PycURL can be used to fetch
+objects identified by a URL from a Python program, similar to the
+urllib Python module. PycURL is mature, very fast, and supports a lot
+of features."}{"Name": "python-iniparse","Version": "0.3.1","Architecture": "noarch","Description": "iniparse is an INI parser for Python which is API compatible
+with the standard library's ConfigParser, preserves structure of INI
+files (order of sections & options, indentation, comments, and blank
+lines are preserved when data is updated), and is more convenient to
+use."}{"Name": "gamin","Version": "0.1.10","Architecture": "x86_64","Description": "This C library provides an API and ABI compatible file alteration
+monitor mechanism compatible with FAM but not dependent on a system wide
+daemon."}{"Name": "shared-mime-info","Version": "0.70","Architecture": "x86_64","Description": "This is the freedesktop.org shared MIME info database.
+
+Many programs and desktops use the MIME system to represent the types of
+files. Frequently, it is necessary to work out the correct MIME type for
+a file. This is generally done by examining the file's name or contents,
+and looking up the correct MIME type in a database."}{"Name": "libuser","Version": "0.56.13","Architecture": "x86_64","Description": "The libuser library implements a standardized interface for manipulating
+and administering user and group accounts.  The library uses pluggable
+back-ends to interface to its data sources.
+
+Sample applications modeled after those included with the shadow password
+suite are included."}{"Name": "yum-plugin-fastestmirror","Version": "1.1.30","Architecture": "noarch","Description": "This plugin sorts each repository's mirrorlist by connection speed
+prior to downloading packages."}{"Name": "centos-release","Version": "6","Architecture": "x86_64","Description": "CentOS release files"}{"Name": "yum-plugin-ovl","Version": "1.1.30","Architecture": "noarch","Description": "This plugin touches rpmdb files to work around overlayfs issues."}{"Name": "rootfiles","Version": "8.1","Architecture": "noarch","Description": "The rootfiles package contains basic required files that are placed
+in the root user's account.  These files are basically the same
+as those in /etc/skel, which are placed in regular
+users' home directories."}]

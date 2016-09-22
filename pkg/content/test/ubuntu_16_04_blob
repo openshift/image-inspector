@@ -1,0 +1,591 @@
+[{"Name": "adduser","Version": "3.113+nmu3ubuntu4","Architecture": "all","Description": "add and remove users and groups
+ This package includes the 'adduser' and 'deluser' commands for creating
+ and removing users.
+ .
+  - 'adduser' creates new users and groups and adds existing users to
+    existing groups;
+  - 'deluser' removes users and groups and removes users from a given
+    group.
+ .
+ Adding users with 'adduser' is much easier than adding them manually.
+ Adduser will choose appropriate UID and GID values, create a home
+ directory, copy skeletal user configuration, and automate setting
+ initial values for the user's password, real name and so on.
+ .
+ Deluser can back up and remove users' home directories
+ and mail spool or all the files they own on the system.
+ .
+ A custom script can be executed after each of the commands.
+ .
+  Development mailing list:
+    http://lists.alioth.debian.org/mailman/listinfo/adduser-devel/"}{"Name": "apt","Version": "1.2.12~ubuntu16.04.1","Architecture": "amd64","Description": "commandline package manager
+ This package provides commandline tools for searching and
+ managing as well as querying information about packages
+ as a low-level access to all features of the libapt-pkg library.
+ .
+ These include:
+  * apt-get for retrieval of packages and information about them
+    from authenticated sources and for installation, upgrade and
+    removal of packages together with their dependencies
+  * apt-cache for querying available information about installed
+    as well as installable packages
+  * apt-cdrom to use removable media as a source for packages
+  * apt-config as an interface to the configuration settings
+  * apt-key as an interface to manage authentication keys"}{"Name": "base-files","Version": "9.4ubuntu4.2","Architecture": "amd64","Description": "Debian base system miscellaneous files
+ This package contains the basic filesystem hierarchy of a Debian system, and
+ several important miscellaneous files, such as /etc/debian_version,
+ /etc/host.conf, /etc/issue, /etc/motd, /etc/profile, and others,
+ and the text of several common licenses in use on Debian systems."}{"Name": "base-passwd","Version": "3.5.39","Architecture": "amd64","Description": "Debian base system master password and group files
+ These are the canonical master copies of the user database files
+ (/etc/passwd and /etc/group), containing the Debian-allocated user and
+ group IDs. The update-passwd tool is provided to keep the system databases
+ synchronized with these master files."}{"Name": "bash","Version": "4.3-14ubuntu1.1","Architecture": "amd64","Description": "GNU Bourne Again SHell
+ Bash is an sh-compatible command language interpreter that executes
+ commands read from the standard input or from a file.  Bash also
+ incorporates useful features from the Korn and C shells (ksh and csh).
+ .
+ Bash is ultimately intended to be a conformant implementation of the
+ IEEE POSIX Shell and Tools specification (IEEE Working Group 1003.2).
+ .
+ The Programmable Completion Code, by Ian Macdonald, is now found in
+ the bash-completion package."}{"Name": "bsdutils","Version": "1:2.27.1-6ubuntu3.1","Architecture": "amd64","Description": "basic utilities from 4.4BSD-Lite
+ This package contains the bare minimum of BSD utilities needed for a
+ Debian system: logger, renice, script, scriptreplay, and wall. The
+ remaining standard BSD utilities are provided by bsdmainutils."}{"Name": "coreutils","Version": "8.25-2ubuntu2","Architecture": "amd64","Description": "GNU core utilities
+ This package contains the basic file, shell and text manipulation
+ utilities which are expected to exist on every operating system.
+ .
+ Specifically, this package includes:
+ arch base64 basename cat chcon chgrp chmod chown chroot cksum comm cp
+ csplit cut date dd df dir dircolors dirname du echo env expand expr
+ factor false flock fmt fold groups head hostid id install join link ln
+ logname ls md5sum mkdir mkfifo mknod mktemp mv nice nl nohup nproc numfmt
+ od paste pathchk pinky pr printenv printf ptx pwd readlink realpath rm
+ rmdir runcon sha*sum seq shred sleep sort split stat stty sum sync tac
+ tail tee test timeout touch tr true truncate tsort tty uname unexpand
+ uniq unlink users vdir wc who whoami yes"}{"Name": "dash","Version": "0.5.8-2.1ubuntu2","Architecture": "amd64","Description": "POSIX-compliant shell
+ The Debian Almquist Shell (dash) is a POSIX-compliant shell derived
+ from ash.
+ .
+ Since it executes scripts faster than bash, and has fewer library
+ dependencies (making it more robust against software or hardware
+ failures), it is used as the default system shell on Debian systems."}{"Name": "debconf","Version": "1.5.58ubuntu1","Architecture": "all","Description": "Debian configuration management system
+ Debconf is a configuration management system for debian packages. Packages
+ use Debconf to ask questions when they are installed."}{"Name": "debianutils","Version": "4.7","Architecture": "amd64","Description": "Miscellaneous utilities specific to Debian
+ This package provides a number of small utilities which are used
+ primarily by the installation scripts of Debian packages, although
+ you may use them directly.
+ .
+ The specific utilities included are:
+ add-shell installkernel ischroot remove-shell run-parts savelog
+ tempfile which"}{"Name": "diffutils","Version": "1:3.3-3","Architecture": "amd64","Description": "File comparison utilities
+ The diffutils package provides the diff, diff3, sdiff, and cmp programs.
+ .
+ `diff' shows differences between two files, or each corresponding file
+ in two directories.  `cmp' shows the offsets and line numbers where
+ two files differ.  `cmp' can also show all the characters that
+ differ between the two files, side by side.  `diff3' shows differences
+ among three files.  `sdiff' merges two files interactively.
+ .
+ The set of differences produced by `diff' can be used to distribute
+ updates to text files (such as program source code) to other people.
+ This method is especially useful when the differences are small compared
+ to the complete files.  Given `diff' output, the `patch' program can
+ update, or "patch", a copy of the file."}{"Name": "dpkg","Version": "1.18.4ubuntu1.1","Architecture": "amd64","Description": "Debian package management system
+ This package provides the low-level infrastructure for handling the
+ installation and removal of Debian software packages.
+ .
+ For Debian package development tools, install dpkg-dev."}{"Name": "e2fslibs:amd64","Version": "1.42.13-1ubuntu1","Architecture": "amd64","Description": "ext2/ext3/ext4 file system libraries
+ The ext2, ext3 and ext4 file systems are successors of the original ext
+ ("extended") file system. They are the main file system types used for
+ hard disks on Debian and other Linux systems.
+ .
+ This package provides the ext2fs and e2p libraries, for userspace software
+ that directly accesses extended file systems. Programs that use libext2fs
+ include e2fsck, mke2fs, and tune2fs. Programs that use libe2p include
+ dumpe2fs, chattr, and lsattr."}{"Name": "e2fsprogs","Version": "1.42.13-1ubuntu1","Architecture": "amd64","Description": "ext2/ext3/ext4 file system utilities
+ The ext2, ext3 and ext4 file systems are successors of the original ext
+ ("extended") file system. They are the main file system types used for
+ hard disks on Debian and other Linux systems.
+ .
+ This package contains programs for creating, checking, and maintaining
+ ext2/3/4-based file systems.  It also includes the "badblocks" program,
+ which can be used to scan for bad blocks on a disk or other storage device."}{"Name": "findutils","Version": "4.6.0+git+20160126-2","Architecture": "amd64","Description": "utilities for finding files--find, xargs
+ GNU findutils provides utilities to find files meeting specified
+ criteria and perform various actions on the files which are found.
+ This package contains 'find' and 'xargs'; however, 'locate' has
+ been split off into a separate package."}{"Name": "gcc-5-base:amd64","Version": "5.4.0-6ubuntu1~16.04.2","Architecture": "amd64","Description": "GCC, the GNU Compiler Collection (base package)
+ This package contains files common to all languages and libraries
+ contained in the GNU Compiler Collection (GCC)."}{"Name": "gcc-6-base:amd64","Version": "6.0.1-0ubuntu1","Architecture": "amd64","Description": "GCC, the GNU Compiler Collection (base package)
+ This package contains files common to all languages and libraries
+ contained in the GNU Compiler Collection (GCC)."}{"Name": "gnupg","Version": "1.4.20-1ubuntu3.1","Architecture": "amd64","Description": "GNU privacy guard - a free PGP replacement
+ GnuPG is GNU's tool for secure communication and data storage.
+ It can be used to encrypt data and to create digital signatures.
+ It includes an advanced key management facility and is compliant
+ with the proposed OpenPGP Internet standard as described in RFC 4880.
+ .
+ GnuPG 1.4 is the standalone, non-modularized series. In contrast to
+ the version 2 series, shipped with the gnupg2 package, it comes
+ with no support for S/MIME and some other tools useful for desktop
+ environments, but also with less dependencies.
+ .
+ The gnupg package is built without libcurl. So it does not support
+ HKPS keyservers. Install the gnupg-curl package if you want to use
+ the keyserver helper tools built with libcurl and supporting HKPS."}{"Name": "gpgv","Version": "1.4.20-1ubuntu3.1","Architecture": "amd64","Description": "GNU privacy guard - signature verification tool
+ GnuPG is GNU's tool for secure communication and data storage.
+ .
+ gpgv is a stripped-down version of gnupg which is only able to check
+ signatures.  It is smaller than the full-blown gnupg and uses a
+ different (and simpler) way to check that the public keys used to
+ make the signature are trustworthy."}{"Name": "grep","Version": "2.25-1~16.04.1","Architecture": "amd64","Description": "GNU grep, egrep and fgrep
+ 'grep' is a utility to search for text in files; it can be used from the
+ command line or in scripts.  Even if you don't want to use it, other packages
+ on your system probably will.
+ .
+ The GNU family of grep utilities may be the "fastest grep in the west".
+ GNU grep is based on a fast lazy-state deterministic matcher (about
+ twice as fast as stock Unix egrep) hybridized with a Boyer-Moore-Gosper
+ search for a fixed string that eliminates impossible text from being
+ considered by the full regexp matcher without necessarily having to
+ look at every character. The result is typically many times faster
+ than Unix grep or egrep. (Regular expressions containing backreferencing
+ will run more slowly, however.)"}{"Name": "gzip","Version": "1.6-4ubuntu1","Architecture": "amd64","Description": "GNU compression utilities
+ This package provides the standard GNU file compression utilities, which
+ are also the default compression tools for Debian.  They typically operate
+ on files with names ending in '.gz', but can also decompress files ending
+ in '.Z' created with 'compress'."}{"Name": "hostname","Version": "3.16ubuntu2","Architecture": "amd64","Description": "utility to set/show the host name or domain name
+ This package provides commands which can be used to display the system's
+ DNS name, and to display or set its hostname or NIS domain name."}{"Name": "init","Version": "1.29ubuntu2","Architecture": "amd64","Description": "System-V-like init utilities - metapackage
+ This package is an essential metapackage which allows you to select from
+ the available init systems in Ubuntu (systemd, upstart) while
+ ensuring that one of these is available on the system at all times."}{"Name": "init-system-helpers","Version": "1.29ubuntu2","Architecture": "all","Description": "helper tools for all init systems
+ This package contains helper tools that are necessary for switching between
+ the various init systems that Debian contains (e. g. sysvinit or
+ systemd). An example is deb-systemd-helper, a script that enables systemd unit
+ files without depending on a running systemd.
+ .
+ It also includes the "service", "invoke-rc.d", and "update-rc.d" scripts which
+ provide an abstraction for enabling, disabling, starting, and stopping
+ services for all supported Debian init systems as specified by the policy.
+ .
+ While this package is maintained by pkg-systemd-maintainers, it is NOT
+ specific to systemd at all. Maintainers of other init systems are welcome to
+ include their helpers in this package."}{"Name": "initscripts","Version": "2.88dsf-59.3ubuntu2","Architecture": "amd64","Description": "scripts for initializing and shutting down the system
+ The scripts in this package initialize a standard Debian
+ system at boot time and shut it down at halt or reboot time."}{"Name": "insserv","Version": "1.14.0-5ubuntu3","Architecture": "amd64","Description": "boot sequence organizer using LSB init.d script dependency information
+ The insserv program is used by the standard SysV-based init system. It
+ updates the order of symlinks in /etc/rc?.d/ based on dependencies
+ specified by LSB headers in the init.d scripts themselves.
+ .
+ These declared relations between scripts make it possible to optimize
+ the boot sequence for the currently installed set of packages, while
+ detecting and rejecting dependency loops.
+ .
+ Using insserv incorrectly can result in an unbootable system."}{"Name": "libacl1:amd64","Version": "2.2.52-3","Architecture": "amd64","Description": "Access control list shared library
+ This package contains the libacl.so dynamic library containing
+ the POSIX 1003.1e draft standard 17 functions for manipulating
+ access control lists."}{"Name": "libapparmor1:amd64","Version": "2.10.95-0ubuntu2.2","Architecture": "amd64","Description": "changehat AppArmor library
+ This package provides the shared library used for making use of the
+ AppArmor profile and changehat functionality, as well as common log
+ parsing routines."}{"Name": "libapt-pkg5.0:amd64","Version": "1.2.12~ubuntu16.04.1","Architecture": "amd64","Description": "package management runtime library
+ This library provides the common functionality for searching and
+ managing packages as well as information about packages.
+ Higher-level package managers can depend upon this library.
+ .
+ This includes:
+  * retrieval of information about packages from multiple sources
+  * retrieval of packages and all dependent packages
+    needed to satisfy a request either through an internal
+    solver or by interfacing with an external one
+  * authenticating the sources and validating the retrieved data
+  * installation and removal of packages in the system
+  * providing different transports to retrieve data over cdrom, ftp,
+    http, rsh as well as an interface to add more transports like
+    https (apt-transport-https) and debtorrent (apt-transport-debtorrent)."}{"Name": "libattr1:amd64","Version": "1:2.4.47-2","Architecture": "amd64","Description": "Extended attribute shared library
+ Contains the runtime environment required by programs that make use
+ of extended attributes."}{"Name": "libaudit-common","Version": "1:2.4.5-1ubuntu2","Architecture": "all","Description": "Dynamic library for security auditing - common files
+ The audit-libs package contains the dynamic libraries needed for
+ applications to use the audit framework. It is used to monitor systems for
+ security related events.
+ .
+ This package contains the libaudit.conf configuration file and the associated
+ manpage."}{"Name": "libaudit1:amd64","Version": "1:2.4.5-1ubuntu2","Architecture": "amd64","Description": "Dynamic library for security auditing
+ The audit-libs package contains the dynamic libraries needed for
+ applications to use the audit framework. It is used to monitor systems for
+ security related events."}{"Name": "libblkid1:amd64","Version": "2.27.1-6ubuntu3.1","Architecture": "amd64","Description": "block device ID library
+ The blkid library allows system programs such as fsck and mount to
+ quickly and easily find block devices by filesystem UUID or label.
+ This allows system administrators to avoid specifying filesystems by
+ hard-coded device names and use a logical naming system instead."}{"Name": "libbz2-1.0:amd64","Version": "1.0.6-8","Architecture": "amd64","Description": "high-quality block-sorting file compressor library - runtime
+ This package contains libbzip2 which is used by the bzip2 compressor.
+ .
+ bzip2 is a freely available, patent free, high-quality data compressor.
+ It typically compresses files to within 10% to 15% of the best available
+ techniques, whilst being around twice as fast at compression and six
+ times faster at decompression.
+ .
+ bzip2 compresses files using the Burrows-Wheeler block-sorting text
+ compression algorithm, and Huffman coding. Compression is generally
+ considerably better than that achieved by more conventional
+ LZ77/LZ78-based compressors, and approaches the performance of the PPM
+ family of statistical compressors.
+ .
+ The archive file format of bzip2 (.bz2) is incompatible with that of its
+ predecessor, bzip (.bz)."}{"Name": "libc-bin","Version": "2.23-0ubuntu3","Architecture": "amd64","Description": "GNU C Library: Binaries
+ This package contains utility programs related to the GNU C Library.
+ .
+  * catchsegv: catch segmentation faults in programs
+  * getconf: query system configuration variables
+  * getent: get entries from administrative databases
+  * iconv, iconvconfig: convert between character encodings
+  * ldd, ldconfig: print/configure shared library dependencies
+  * locale, localedef: show/generate locale definitions
+  * tzselect, zdump, zic: select/dump/compile time zones"}{"Name": "libc6:amd64","Version": "2.23-0ubuntu3","Architecture": "amd64","Description": "GNU C Library: Shared libraries
+ Contains the standard libraries that are used by nearly all programs on
+ the system. This package includes shared versions of the standard C library
+ and the standard math library, as well as many others."}{"Name": "libcap2:amd64","Version": "1:2.24-12","Architecture": "amd64","Description": "POSIX 1003.1e capabilities (library)
+ Libcap implements the user-space interfaces to the POSIX 1003.1e capabilities
+ available in Linux kernels. These capabilities are a partitioning of the all
+ powerful root privilege into a set of distinct privileges.
+ .
+ This package contains the shared library."}{"Name": "libcap2-bin","Version": "1:2.24-12","Architecture": "amd64","Description": "POSIX 1003.1e capabilities (utilities)
+ Libcap implements the user-space interfaces to the POSIX 1003.1e capabilities
+ available in Linux kernels. These capabilities are a partitioning of the all
+ powerful root privilege into a set of distinct privileges.
+ .
+ This package contains additional utilities."}{"Name": "libcomerr2:amd64","Version": "1.42.13-1ubuntu1","Architecture": "amd64","Description": "common error description library
+ libcomerr is an attempt to present a common error-handling mechanism to
+ manipulate the most common form of error code in a fashion that does not
+ have the problems identified with mechanisms commonly in use."}{"Name": "libcryptsetup4:amd64","Version": "2:1.6.6-5ubuntu2","Architecture": "amd64","Description": "disk encryption support - shared library
+ Cryptsetup provides an interface for configuring encryption on block
+ devices (such as /home or swap partitions), using the Linux kernel
+ device mapper target dm-crypt. It features integrated Linux Unified Key
+ Setup (LUKS) support.
+ .
+ This package provides the libcryptsetup shared library."}{"Name": "libdb5.3:amd64","Version": "5.3.28-11","Architecture": "amd64","Description": "Berkeley v5.3 Database Libraries [runtime]
+ This is the runtime package for programs that use the v5.3 Berkeley
+ database library."}{"Name": "libdebconfclient0:amd64","Version": "0.198ubuntu1","Architecture": "amd64","Description": "Debian Configuration Management System (C-implementation library)
+ Debconf is a configuration management system for Debian packages. It is
+ used by some packages to prompt you for information before they are
+ installed. cdebconf is a reimplementation of the original debconf in C.
+ .
+ This library allows C programs to interface with cdebconf."}{"Name": "libdevmapper1.02.1:amd64","Version": "2:1.02.110-1ubuntu10","Architecture": "amd64","Description": "Linux Kernel Device Mapper userspace library
+ The Linux Kernel Device Mapper is the LVM (Linux Logical Volume Management)
+ Team's implementation of a minimalistic kernel-space driver that handles
+ volume management, while keeping knowledge of the underlying device layout
+ in user-space.  This makes it useful for not only LVM, but software raid,
+ and other drivers that create "virtual" block devices.
+ .
+ This package contains the (user-space) shared library for accessing the
+ device-mapper; it allows usage of the device-mapper through a clean,
+ consistent interface (as opposed to through kernel ioctls)."}{"Name": "libfdisk1:amd64","Version": "2.27.1-6ubuntu3.1","Architecture": "amd64","Description": "fdisk partitioning library
+ The libfdisk library is used for manipulating partition tables. It is
+ the core of the fdisk, cfdisk, and sfdisk tools."}{"Name": "libgcc1:amd64","Version": "1:6.0.1-0ubuntu1","Architecture": "amd64","Description": "GCC support library
+ Shared version of the support library, a library of internal subroutines
+ that GCC uses to overcome shortcomings of particular machines, or
+ special needs for some languages."}{"Name": "libgcrypt20:amd64","Version": "1.6.5-2ubuntu0.2","Architecture": "amd64","Description": "LGPL Crypto library - runtime library
+ libgcrypt contains cryptographic functions.  Many important free
+ ciphers, hash algorithms and public key signing algorithms have been
+ implemented:
+ .
+ Arcfour, Blowfish, CAST5, DES, AES, Twofish, Serpent, rfc2268 (rc2), SEED,
+ Camellia, IDEA, Salsa, CRC, MD4, MD5, RIPE-MD160, SHA-1, SHA-256, SHA-512,
+ Tiger, Whirlpool, DSA, DSA2, ElGamal, RSA, ECC."}{"Name": "libgpg-error0:amd64","Version": "1.21-2ubuntu1","Architecture": "amd64","Description": "library for common error values and messages in GnuPG components
+ Library that defines common error values for all GnuPG
+ components.  Among these are GPG, GPGSM, GPGME, GPG-Agent, libgcrypt,
+ pinentry, SmartCard Daemon and possibly more in the future."}{"Name": "libkmod2:amd64","Version": "22-1ubuntu4","Architecture": "amd64","Description": "libkmod shared library
+ This library provides an API for insertion, removal, configuration and
+ listing of kernel modules."}{"Name": "liblz4-1:amd64","Version": "0.0~r131-2ubuntu2","Architecture": "amd64","Description": "Fast LZ compression algorithm library - runtime
+ LZ4 is a very fast lossless compression algorithm, providing compression speed
+ at 400 MB/s per core, scalable with multi-cores CPU. It also features an
+ extremely fast decoder, with speed in multiple GB/s per core, typically
+ reaching RAM speed limits on multi-core systems.
+ .
+ This package includes the shared library."}{"Name": "liblzma5:amd64","Version": "5.1.1alpha+20120614-2ubuntu2","Architecture": "amd64","Description": "XZ-format compression library
+ XZ is the successor to the Lempel-Ziv/Markov-chain Algorithm
+ compression format, which provides memory-hungry but powerful
+ compression (often better than bzip2) and fast, easy decompression.
+ .
+ The native format of liblzma is XZ; it also supports raw (headerless)
+ streams and the older LZMA format used by lzma. (For 7-Zip's related
+ format, use the p7zip package instead.)"}{"Name": "libmount1:amd64","Version": "2.27.1-6ubuntu3.1","Architecture": "amd64","Description": "device mounting library
+ This device mounting library is used by mount and umount helpers."}{"Name": "libncurses5:amd64","Version": "6.0+20160213-1ubuntu1","Architecture": "amd64","Description": "shared libraries for terminal handling
+ The ncurses library routines are a terminal-independent method of
+ updating character screens with reasonable optimization.
+ .
+ This package contains the shared libraries necessary to run programs
+ compiled with ncurses."}{"Name": "libncursesw5:amd64","Version": "6.0+20160213-1ubuntu1","Architecture": "amd64","Description": "shared libraries for terminal handling (wide character support)
+ The ncurses library routines are a terminal-independent method of
+ updating character screens with reasonable optimization.
+ .
+ This package contains the shared libraries necessary to run programs
+ compiled with ncursesw, which includes support for wide characters."}{"Name": "libpam-modules:amd64","Version": "1.1.8-3.2ubuntu2","Architecture": "amd64","Description": "Pluggable Authentication Modules for PAM
+ This package completes the set of modules for PAM. It includes the
+  pam_unix.so module as well as some specialty modules."}{"Name": "libpam-modules-bin","Version": "1.1.8-3.2ubuntu2","Architecture": "amd64","Description": "Pluggable Authentication Modules for PAM - helper binaries
+ This package contains helper binaries used by the standard set of PAM
+ modules in the libpam-modules package."}{"Name": "libpam-runtime","Version": "1.1.8-3.2ubuntu2","Architecture": "all","Description": "Runtime support for the PAM library
+ Contains configuration files and  directories required for
+ authentication  to work on Debian systems.  This package is required
+ on almost all installations."}{"Name": "libpam0g:amd64","Version": "1.1.8-3.2ubuntu2","Architecture": "amd64","Description": "Pluggable Authentication Modules library
+ Contains the shared library for Linux-PAM, a library that enables the
+ local system administrator to choose how applications authenticate users.
+ In other words, without rewriting or recompiling a PAM-aware application,
+ it is possible to switch between the authentication mechanism(s) it uses.
+ One may entirely upgrade the local authentication system without touching
+ the applications themselves."}{"Name": "libpcre3:amd64","Version": "2:8.38-3.1","Architecture": "amd64","Description": "Perl 5 Compatible Regular Expression Library - runtime files
+ This is a library of functions to support regular expressions whose syntax
+ and semantics are as close as possible to those of the Perl 5 language.
+ .
+ This package contains the runtime libraries."}{"Name": "libprocps4:amd64","Version": "2:3.3.10-4ubuntu2","Architecture": "amd64","Description": "library for accessing process information from /proc
+ The libprocps library is a way of accessing information out of the /proc
+ filesystem.
+ .
+ This package contains the shared libraries necessary to run programs
+ compilied with libprocps."}{"Name": "libreadline6:amd64","Version": "6.3-8ubuntu2","Architecture": "amd64","Description": "GNU readline and history libraries, run-time libraries
+ The GNU readline library aids in the consistency of user interface
+ across discrete programs that need to provide a command line
+ interface.
+ .
+ The GNU history library provides a consistent user interface for
+ recalling lines of previously typed input."}{"Name": "libseccomp2:amd64","Version": "2.2.3-3ubuntu3","Architecture": "amd64","Description": "high level interface to Linux seccomp filter
+ This library provides a high level interface to constructing, analyzing
+ and installing seccomp filters via a BPF passed to the Linux Kernel's
+ prctl() syscall."}{"Name": "libselinux1:amd64","Version": "2.4-3build2","Architecture": "amd64","Description": "SELinux runtime shared libraries
+ This package provides the shared libraries for Security-enhanced
+ Linux that provides interfaces (e.g. library functions for the
+ SELinux kernel APIs like getcon(), other support functions like
+ getseuserbyname()) to SELinux-aware applications. Security-enhanced
+ Linux is a patch of the Linux kernel and a number of utilities with
+ enhanced security functionality designed to add mandatory access
+ controls to Linux.  The Security-enhanced Linux kernel contains new
+ architectural components originally developed to improve the security
+ of the Flask operating system. These architectural components provide
+ general support for the enforcement of many kinds of mandatory access
+ control policies, including those based on the concepts of Type
+ Enforcement, Role-based Access Control, and Multi-level Security.
+ .
+ libselinux1 provides an API for SELinux applications to get and set
+ process and file security contexts and to obtain security policy
+ decisions.  Required for any applications that use the SELinux
+ API. libselinux may use the shared libsepol to manipulate the binary
+ policy if necessary (e.g. to downgrade the policy format to an older
+ version supported by the kernel) when loading policy."}{"Name": "libsemanage-common","Version": "2.3-1build3","Architecture": "all","Description": "Common files for SELinux policy management libraries
+ This package provides the common files used by the shared libraries
+ for SELinux policy management.
+ .
+ Security-enhanced Linux is a patch of the Linux kernel and a
+ number of utilities with enhanced security functionality designed to
+ add mandatory access controls to Linux.  The Security-enhanced Linux
+ kernel contains new architectural components originally developed to
+ improve the security of the Flask operating system. These
+ architectural components provide general support for the enforcement
+ of many kinds of mandatory access control policies, including those
+ based on the concepts of Type Enforcement, Role-based Access
+ Control, and Multi-level Security."}{"Name": "libsemanage1:amd64","Version": "2.3-1build3","Architecture": "amd64","Description": "SELinux policy management library
+ This package provides the shared libraries for SELinux policy management.
+ It uses libsepol for binary policy manipulation and libselinux for
+ interacting with the SELinux system.  It also exec's helper programs
+ for loading policy and for checking whether the file_contexts
+ configuration is valid (load_policy and setfiles from
+ policycoreutils) presently, although this may change at least for the
+ bootstrapping case
+ .
+ Security-enhanced Linux is a patch of the Linux kernel and a
+ number of utilities with enhanced security functionality designed to
+ add mandatory access controls to Linux.  The Security-enhanced Linux
+ kernel contains new architectural components originally developed to
+ improve the security of the Flask operating system. These
+ architectural components provide general support for the enforcement
+ of many kinds of mandatory access control policies, including those
+ based on the concepts of Type Enforcement, Role-based Access
+ Control, and Multi-level Security."}{"Name": "libsepol1:amd64","Version": "2.4-2","Architecture": "amd64","Description": "SELinux library for manipulating binary security policies
+ Security-enhanced Linux is a patch of the Linux kernel and a number
+ of utilities with enhanced security functionality designed to add
+ mandatory access controls to Linux.  The Security-enhanced Linux
+ kernel contains new architectural components originally developed to
+ improve the security of the Flask operating system. These
+ architectural components provide general support for the enforcement
+ of many kinds of mandatory access control policies, including those
+ based on the concepts of Type Enforcement®, Role-based Access
+ Control, and Multi-level Security.
+ .
+ libsepol provides an API for the manipulation of SELinux binary policies.
+ It is used by checkpolicy (the policy compiler) and similar tools, as well
+ as by programs like load_policy that need to perform specific transformations
+ on binary policies such as customizing policy boolean settings."}{"Name": "libsmartcols1:amd64","Version": "2.27.1-6ubuntu3.1","Architecture": "amd64","Description": "smart column output alignment library
+ This smart column output alignment library is used by fdisk utilities."}{"Name": "libss2:amd64","Version": "1.42.13-1ubuntu1","Architecture": "amd64","Description": "command-line interface parsing library
+ libss provides a simple command-line interface parser which will
+ accept input from the user, parse the command into an argv argument
+ vector, and then dispatch it to a handler function.
+ .
+ It was originally inspired by the Multics SubSystem library."}{"Name": "libstdc++6:amd64","Version": "5.4.0-6ubuntu1~16.04.2","Architecture": "amd64","Description": "GNU Standard C++ Library v3
+ This package contains an additional runtime library for C++ programs
+ built with the GNU compiler.
+ .
+ libstdc++-v3 is a complete rewrite from the previous libstdc++-v2, which
+ was included up to g++-2.95. The first version of libstdc++-v3 appeared
+ in g++-3.0."}{"Name": "libsystemd0:amd64","Version": "229-4ubuntu8","Architecture": "amd64","Description": "systemd utility library
+ The libsystemd0 library provides interfaces to various systemd components."}{"Name": "libtinfo5:amd64","Version": "6.0+20160213-1ubuntu1","Architecture": "amd64","Description": "shared low-level terminfo library for terminal handling
+ The ncurses library routines are a terminal-independent method of
+ updating character screens with reasonable optimization.
+ .
+ This package contains the shared low-level terminfo library."}{"Name": "libudev1:amd64","Version": "229-4ubuntu8","Architecture": "amd64","Description": "libudev shared library
+ This library provides access to udev device information."}{"Name": "libusb-0.1-4:amd64","Version": "2:0.1.12-28","Architecture": "amd64","Description": "userspace USB programming library
+ Library for programming USB applications without the knowledge
+ of Linux kernel internals.
+ .
+ This package contains what you need to run programs that use this
+ library."}{"Name": "libustr-1.0-1:amd64","Version": "1.0.4-5","Architecture": "amd64","Description": "Micro string library: shared library
+ ustr (Micro string library) is a string API for C. It has tiny overhead over
+ just plain strdup(), is much safer, is easier to use, is faster for many
+ operations, can be used with read-only or automatically allocated data. You
+ don't even need to link to the library to use it (so there are no
+ dependencies).
+ .
+ This package contains the shared library."}{"Name": "libuuid1:amd64","Version": "2.27.1-6ubuntu3.1","Architecture": "amd64","Description": "Universally Unique ID library
+ The libuuid library generates and parses 128-bit Universally Unique
+ IDs (UUIDs). A UUID is an identifier that is unique within the space
+ of all such identifiers across both space and time. It can be used for
+ multiple purposes, from tagging objects with an extremely short lifetime
+ to reliably identifying very persistent objects across a network.
+ .
+ See RFC 4122 for more information."}{"Name": "locales","Version": "2.23-0ubuntu3","Architecture": "all","Description": "GNU C Library: National Language (locale) data [support]
+ Machine-readable data files, shared objects and programs used by the
+ C library for localization (l10n) and internationalization (i18n) support.
+ .
+ This package contains tools to generate locale definitions from source
+ files (included in this package). It allows you to customize which
+ definitions actually get generated. This is a space-saver over how this
+ package used to be, with all locales generated by default. This created
+ a package that unpacked to an excess of 30 megs."}{"Name": "login","Version": "1:4.2-3.1ubuntu5","Architecture": "amd64","Description": "system login tools
+ These tools are required to be able to login and use your system. The
+ login program invokes your user shell and enables command execution. The
+ newgrp program is used to change your effective group ID (useful for
+ workgroup type situations). The su program allows changing your effective
+ user ID (useful being able to execute commands as another user)."}{"Name": "lsb-base","Version": "9.20160110ubuntu0.2","Architecture": "all","Description": "Linux Standard Base init script functionality
+ The Linux Standard Base (http://www.linuxbase.org/) is a standard
+ core system that third-party applications written for Linux can
+ depend upon.
+ .
+ This package only includes the init-functions shell library, which
+ may be used by other packages' initialization scripts for console
+ logging and other purposes."}{"Name": "makedev","Version": "2.3.1-93ubuntu1","Architecture": "all","Description": "creates device files in /dev
+ The MAKEDEV executable is used to create device files, often in /dev.
+ .
+ Device files are special files through which applications can interact
+ with hardware.
+ .
+ This package is not necessary for most modern Linux systems, where the udev
+ subsystem provides a more dynamic mechanism for device file management."}{"Name": "mawk","Version": "1.3.3-17ubuntu2","Architecture": "amd64","Description": "a pattern scanning and text processing language
+ Mawk is an interpreter for the AWK Programming Language. The AWK
+ language is useful for manipulation of data files, text retrieval and
+ processing, and for prototyping and experimenting with algorithms. Mawk
+ is a new awk meaning it implements the AWK language as defined in Aho,
+ Kernighan and Weinberger, The AWK Programming Language, Addison-Wesley
+ Publishing, 1988. (Hereafter referred to as the AWK book.) Mawk conforms
+ to the POSIX 1003.2 (draft 11.3) definition of the AWK language
+ which contains a few features not described in the AWK book, and mawk
+ provides a small number of extensions.
+ .
+ Mawk is smaller and much faster than gawk. It has some compile-time
+ limits such as NF = 32767 and sprintf buffer = 1020."}{"Name": "mount","Version": "2.27.1-6ubuntu3.1","Architecture": "amd64","Description": "tools for mounting and manipulating filesystems
+ This package provides the mount(8), umount(8), swapon(8),
+ swapoff(8), and losetup(8) commands."}{"Name": "multiarch-support","Version": "2.23-0ubuntu3","Architecture": "amd64","Description": "Transitional package to ensure multiarch compatibility
+ This is a transitional package used to ensure multiarch support is present
+ in ld.so before unpacking libraries to the multiarch directories.  It can
+ be removed once nothing on the system depends on it."}{"Name": "ncurses-base","Version": "6.0+20160213-1ubuntu1","Architecture": "all","Description": "basic terminal type definitions
+ The ncurses library routines are a terminal-independent method of
+ updating character screens with reasonable optimization.
+ .
+ This package contains terminfo data files to support the most common types of
+ terminal, including ansi, dumb, linux, rxvt, screen, sun, vt100, vt102, vt220,
+ vt52, and xterm."}{"Name": "ncurses-bin","Version": "6.0+20160213-1ubuntu1","Architecture": "amd64","Description": "terminal-related programs and man pages
+ The ncurses library routines are a terminal-independent method of
+ updating character screens with reasonable optimization.
+ .
+ This package contains the programs used for manipulating the terminfo
+ database and individual terminfo entries, as well as some programs for
+ resetting terminals and such."}{"Name": "passwd","Version": "1:4.2-3.1ubuntu5","Architecture": "amd64","Description": "change and administer password and group data
+ This package includes passwd, chsh, chfn, and many other programs to
+ maintain password and group data.
+ .
+ Shadow passwords are supported.  See /usr/share/doc/passwd/README.Debian"}{"Name": "perl-base","Version": "5.22.1-9","Architecture": "amd64","Description": "minimal Perl system
+ Perl is a scripting language used in many system scripts and utilities.
+ .
+ This package provides a Perl interpreter and the small subset of the
+ standard run-time library required to perform basic tasks. For a full
+ Perl installation, install "perl" (and its dependencies, "perl-modules-5.22"
+ and "perl-doc")."}{"Name": "procps","Version": "2:3.3.10-4ubuntu2","Architecture": "amd64","Description": "/proc file system utilities
+ This package provides command line and full screen utilities for browsing
+ procfs, a "pseudo" file system dynamically generated by the kernel to
+ provide information about the status of entries in its process table
+ (such as whether the process is running, stopped, or a "zombie").
+ .
+ It contains free, kill, pkill, pgrep, pmap, ps, pwdx, skill, slabtop,
+ snice, sysctl, tload, top, uptime, vmstat, w, and watch."}{"Name": "readline-common","Version": "6.3-8ubuntu2","Architecture": "all","Description": "GNU readline and history libraries, common files
+ The GNU readline library aids in the consistency of user interface
+ across discrete programs that need to provide a command line
+ interface.
+ .
+ The GNU history library provides a consistent user interface for
+ recalling lines of previously typed input."}{"Name": "sed","Version": "4.2.2-7","Architecture": "amd64","Description": "The GNU sed stream editor
+ sed reads the specified files or the standard input if no
+ files are specified, makes editing changes according to a
+ list of commands, and writes the results to the standard
+ output."}{"Name": "sensible-utils","Version": "0.0.9","Architecture": "all","Description": "Utilities for sensible alternative selection
+ This package provides a number of small utilities which are used
+ by programs to sensibly select and spawn an appropriate browser,
+ editor, or pager.
+ .
+ The specific utilities included are: sensible-browser sensible-editor
+ sensible-pager"}{"Name": "systemd","Version": "229-4ubuntu8","Architecture": "amd64","Description": "system and service manager
+ systemd is a system and service manager for Linux. It provides aggressive
+ parallelization capabilities, uses socket and D-Bus activation for starting
+ services, offers on-demand starting of daemons, keeps track of processes
+ using Linux control groups, supports snapshotting and restoring of the system
+ state, maintains mount and automount points and implements an elaborate
+ transactional dependency-based service control logic.
+ .
+ systemd is compatible with SysV and LSB init scripts and can work as a
+ drop-in replacement for sysvinit.
+ .
+ Installing the systemd package will not switch your init system unless you
+ boot with init=/bin/systemd or install systemd-sysv in addition."}{"Name": "systemd-sysv","Version": "229-4ubuntu8","Architecture": "amd64","Description": "system and service manager - SysV links
+ systemd is a system and service manager for Linux. It provides aggressive
+ parallelization capabilities, uses socket and D-Bus activation for starting
+ services, offers on-demand starting of daemons, keeps track of processes
+ using Linux control groups, supports snapshotting and restoring of the system
+ state, maintains mount and automount points and implements an elaborate
+ transactional dependency-based service control logic.
+ .
+ systemd is compatible with SysV and LSB init scripts and can work as a
+ drop-in replacement for sysvinit.
+ .
+ This package provides the manual pages and links needed for systemd
+ to replace sysvinit. Installing systemd-sysv will overwrite /sbin/init with a
+ link to systemd."}{"Name": "sysv-rc","Version": "2.88dsf-59.3ubuntu2","Architecture": "all","Description": "System-V-like runlevel change mechanism
+ This package provides support for the System-V like system
+ for booting, changing runlevels, and shutting down,
+ configured through symbolic links in /etc/rc?.d/."}{"Name": "sysvinit-utils","Version": "2.88dsf-59.3ubuntu2","Architecture": "amd64","Description": "System-V-like utilities
+ This package contains the important System-V-like utilities.
+
+ Specifically, this package includes:
+ killall5, pidof"}{"Name": "tar","Version": "1.28-2.1","Architecture": "amd64","Description": "GNU version of the tar archiving utility
+ Tar is a program for packaging a set of files as a single archive in tar
+ format.  The function it performs is conceptually similar to cpio, and to
+ things like PKZIP in the DOS world.  It is heavily used by the Debian package
+ management system, and is useful for performing system backups and exchanging
+ sets of files with others."}{"Name": "tzdata","Version": "2016f-0ubuntu0.16.04","Architecture": "all","Description": "time zone and daylight-saving time data
+ This package contains data required for the implementation of
+ standard local time for many representative locations around the
+ globe. It is updated periodically to reflect changes made by
+ political bodies to time zone boundaries, UTC offsets, and
+ daylight-saving rules."}{"Name": "ubuntu-keyring","Version": "2012.05.19","Architecture": "all","Description": "GnuPG keys of the Ubuntu archive
+ The Ubuntu project digitally signs its Release files. This package
+ contains the archive keys used for that."}{"Name": "util-linux","Version": "2.27.1-6ubuntu3.1","Architecture": "amd64","Description": "miscellaneous system utilities
+ This package contains a number of important utilities, most of which
+ are oriented towards maintenance of your system. Some of the more
+ important utilities included in this package allow you to partition
+ your hard disk, view kernel messages, and create new filesystems."}{"Name": "zlib1g:amd64","Version": "1:1.2.8.dfsg-2ubuntu4","Architecture": "amd64","Description": "compression library - runtime
+ zlib is a library implementing the deflate compression method found
+ in gzip and PKZIP.  This package includes the shared library."}]
