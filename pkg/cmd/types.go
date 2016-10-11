@@ -49,6 +49,8 @@ type ImageInspectorOptions struct {
 	ScanResultsDir string
 	// OpenScapHTML controls whether or not to generate an HTML report
 	OpenScapHTML bool
+	// PackageReport controls whether or not to generate a package report
+	PackageReport bool
 }
 
 // NewDefaultImageInspectorOptions provides a new ImageInspectorOptions with default values.
