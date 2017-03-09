@@ -27,8 +27,10 @@ func (sv *MultiStringVar) String() string {
 // ImageInspectorOptions is the main inspector implementation and holds the configuration
 // for an image inspector.
 type ImageInspectorOptions struct {
-	// URI contains the location of the docker daemon socket to connect to.
-	URI string
+	// UseDockDaemon Flag to use the local docker daemon to handle images
+	UseDockDaemon bool
+	// DockerSocket contains the location of the docker daemon socket to connect to.
+	DockerSocket string
 	// Image contains the docker image to inspect.
 	Image string
 	// DstPath is the destination path for image files.
@@ -57,7 +59,8 @@ type ImageInspectorOptions struct {
 // NewDefaultImageInspectorOptions provides a new ImageInspectorOptions with default values.
 func NewDefaultImageInspectorOptions() *ImageInspectorOptions {
 	return &ImageInspectorOptions{
-		URI:            "unix:///var/run/docker.sock",
+		UseDockDaemon:  false,
+		DockerSocket:   "unix:///var/run/docker.sock",
 		Image:          "",
 		DstPath:        "",
 		Serve:          "",
@@ -74,8 +77,8 @@ func NewDefaultImageInspectorOptions() *ImageInspectorOptions {
 
 // Validate performs validation on the field settings.
 func (i *ImageInspectorOptions) Validate() error {
-	if len(i.URI) == 0 {
-		return fmt.Errorf("Docker socket connection must be specified")
+	if i.UseDockDaemon && len(i.DockerSocket) == 0 {
+		return fmt.Errorf("Docker socket connection must be specified if UseDockDaemon is set")
 	}
 	if len(i.Image) == 0 {
 		return fmt.Errorf("Docker image to inspect must be specified")

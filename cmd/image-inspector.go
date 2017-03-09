@@ -13,7 +13,8 @@ import (
 func main() {
 	inspectorOptions := iicmd.NewDefaultImageInspectorOptions()
 
-	flag.StringVar(&inspectorOptions.URI, "docker", inspectorOptions.URI, "Daemon socket to connect to")
+	flag.BoolVar(&inspectorOptions.UseDockDaemon, "use-docker", inspectorOptions.UseDockDaemon, "Use docker daemon to handle image pulls (requires docker-socket)")
+	flag.StringVar(&inspectorOptions.DockerSocket, "docker-socket", inspectorOptions.DockerSocket, "Daemon socket to connect to")
 	flag.StringVar(&inspectorOptions.Image, "image", inspectorOptions.Image, "Docker image to inspect")
 	flag.StringVar(&inspectorOptions.DstPath, "path", inspectorOptions.DstPath, "Destination path for the image files")
 	flag.StringVar(&inspectorOptions.Serve, "serve", inspectorOptions.Serve, "Host and port where to serve the image with webdav")

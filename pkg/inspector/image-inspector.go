@@ -9,17 +9,23 @@ import (
 	"math"
 	"math/big"
 	"os"
-	"path"
 	"strings"
 	"time"
 
-	"archive/tar"
 	"crypto/rand"
+
+	"github.com/containers/image/copy"
+	"github.com/containers/image/manifest"
+	"github.com/containers/image/signature"
+	"github.com/containers/image/transports/alltransports"
+	"github.com/containers/image/types"
+	"github.com/opencontainers/go-digest"
 
 	docker "github.com/fsouza/go-dockerclient"
 	"github.com/openshift/image-inspector/pkg/openscap"
 
 	iicmd "github.com/openshift/image-inspector/pkg/cmd"
+	"github.com/openshift/image-inspector/pkg/util"
 
 	iiapi "github.com/openshift/image-inspector/pkg/api"
 	apiserver "github.com/openshift/image-inspector/pkg/imageserver"
@@ -27,8 +33,6 @@ import (
 
 const (
 	VERSION_TAG              = "v1"
-	DOCKER_TAR_PREFIX        = "rootfs/"
-	OWNER_PERM_RW            = 0600
 	HEALTHZ_URL_PATH         = "/healthz"
 	API_URL_PREFIX           = "/api"
 	CONTENT_URL_PREFIX       = API_URL_PREFIX + "/" + VERSION_TAG + "/content/"
@@ -38,6 +42,8 @@ const (
 	CHROOT_SERVE_PATH        = "/"
 	OSCAP_CVE_DIR            = "/tmp"
 	PULL_LOG_INTERVAL_SEC    = 10
+	DOCKER_CERTS_DIR         = "/etc/docker/certs.d"
+	DEFAULT_SIGN_POLICY      = "{\"default\":[{\"type\": \"insecureAcceptAnything\" }]}"
 )
 
 var osMkdir = os.Mkdir
@@ -99,26 +105,35 @@ func NewDefaultImageInspector(opts iicmd.ImageInspectorOptions) ImageInspector {
 
 // Inspect inspects and serves the image based on the ImageInspectorOptions.
 func (i *defaultImageInspector) Inspect() error {
-	client, err := docker.NewClient(i.opts.URI)
-	if err != nil {
-		return fmt.Errorf("Unable to connect to docker daemon: %v\n", err)
+	if i.opts.UseDockDaemon {
+		client, err := docker.NewClient(i.opts.DockerSocket)
+		if err != nil {
+			return fmt.Errorf("Unable to connect to docker daemon: %v\n", err)
+		}
+
+		if err = i.dockerPullImage(client); err != nil {
+			return err
+		}
+
+		randomName, err := generateRandomName()
+		if err != nil {
+			return err
+		}
+
+		imageMetadata, err := i.createAndExtractImage(client, randomName)
+		if err != nil {
+			return err
+		}
+		i.meta.Image = *imageMetadata
+	} else {
+		inspectInfo, imageDigest, err := i.pullExtractAndInspectImage()
+		if err != nil {
+			return err
+		}
+		i.meta.Image = *inspectInfoToDockerImage(inspectInfo, imageDigest)
 	}
 
-	if err = i.pullImage(client); err != nil {
-		return err
-	}
-
-	randomName, err := generateRandomName()
-	if err != nil {
-		return err
-	}
-
-	imageMetadata, err := i.createAndExtractImage(client, randomName)
-	if err != nil {
-		return err
-	}
-	i.meta.Image = *imageMetadata
-
+	var err error
 	var scanReport []byte
 	var htmlScanReport []byte
 	if i.opts.ScanType == "openscap" {
@@ -201,7 +216,7 @@ func decodeDockerPullMessages(bytesChan chan int, reader io.Reader) {
 // pullImage pulls the inspected image using the given client.
 // It will try to use all the given authentication methods and will fail
 // only if all of them failed.
-func (i *defaultImageInspector) pullImage(client *docker.Client) error {
+func (i *defaultImageInspector) dockerPullImage(client *docker.Client) error {
 	log.Printf("Pulling image %s", i.opts.Image)
 
 	var imagePullAuths *docker.AuthConfigurations
@@ -296,7 +311,7 @@ func (i *defaultImageInspector) createAndExtractImage(client *docker.Client, con
 
 	// block on handling the reads here so we ensure both the write and the reader are finished
 	// (read waits until an EOF or error occurs).
-	handleTarStream(reader, i.opts.DstPath)
+	util.HandleTarStream(reader, i.opts.DstPath)
 
 	// capture any error from the copy, ensures both the handleTarStream and DownloadFromContainer
 	// are done.
@@ -306,74 +321,6 @@ func (i *defaultImageInspector) createAndExtractImage(client *docker.Client, con
 	}
 
 	return imageMetadata, nil
-}
-
-func handleTarStream(reader io.ReadCloser, destination string) {
-	tr := tar.NewReader(reader)
-	if tr != nil {
-		err := processTarStream(tr, destination)
-		if err != nil {
-			log.Print(err)
-		}
-	} else {
-		log.Printf("Unable to create image tar reader")
-	}
-}
-
-func processTarStream(tr *tar.Reader, destination string) error {
-	for {
-		hdr, err := tr.Next()
-		if err != nil {
-			if err == io.EOF {
-				return nil
-			}
-			return fmt.Errorf("Unable to extract container: %v\n", err)
-		}
-
-		hdrInfo := hdr.FileInfo()
-
-		dstpath := path.Join(destination, strings.TrimPrefix(hdr.Name, DOCKER_TAR_PREFIX))
-		// Overriding permissions to allow writing content
-		mode := hdrInfo.Mode() | OWNER_PERM_RW
-
-		switch hdr.Typeflag {
-		case tar.TypeDir:
-			if err := os.Mkdir(dstpath, mode); err != nil {
-				if !os.IsExist(err) {
-					return fmt.Errorf("Unable to create directory: %v", err)
-				}
-				err = os.Chmod(dstpath, mode)
-				if err != nil {
-					return fmt.Errorf("Unable to update directory mode: %v", err)
-				}
-			}
-		case tar.TypeReg, tar.TypeRegA:
-			file, err := os.OpenFile(dstpath, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, mode)
-			if err != nil {
-				return fmt.Errorf("Unable to create file: %v", err)
-			}
-			if _, err := io.Copy(file, tr); err != nil {
-				file.Close()
-				return fmt.Errorf("Unable to write into file: %v", err)
-			}
-			file.Close()
-		case tar.TypeSymlink:
-			if err := os.Symlink(hdr.Linkname, dstpath); err != nil {
-				return fmt.Errorf("Unable to create symlink: %v\n", err)
-			}
-		case tar.TypeLink:
-			target := path.Join(destination, strings.TrimPrefix(hdr.Linkname, DOCKER_TAR_PREFIX))
-			if err := os.Link(target, dstpath); err != nil {
-				return fmt.Errorf("Unable to create link: %v\n", err)
-			}
-		default:
-			// For now we're skipping anything else. Special device files and
-			// symlinks are not needed or anyway probably incorrect.
-		}
-
-		// maintaining access and modification time in best effort fashion
-		os.Chtimes(dstpath, hdr.AccessTime, hdr.ModTime)
-	}
 }
 
 func generateRandomName() (string, error) {
@@ -466,4 +413,140 @@ func createOutputDir(dirName string, tempName string) (string, error) {
 		}
 	}
 	return dirName, nil
+}
+
+func (i *defaultImageInspector) pullExtractAndInspectImage() (*types.ImageInspectInfo, digest.Digest, error) {
+
+	policy, err := signature.NewPolicyFromBytes([]byte(DEFAULT_SIGN_POLICY))
+	if err != nil {
+		return nil, "", err
+	}
+	policyContext, err := signature.NewPolicyContext(policy)
+	if err != nil {
+		return nil, "", err
+	}
+	defer policyContext.Destroy()
+
+	srcRef, err := alltransports.ParseImageName(i.opts.Image)
+	if err != nil {
+		return nil, "", fmt.Errorf("Invalid source name %s: %v", i.opts.Image, err)
+	}
+
+	certPath, err := dockerCertPath(i.opts.Image)
+	if err != nil {
+		return nil, "", err
+	}
+	sourceCtx := &types.SystemContext{
+		DockerAuthConfig: nil,
+		DockerCertPath:   certPath,
+	}
+
+	if i.opts.DstPath, err = createOutputDir(i.opts.DstPath, "image-inspector-"); err != nil {
+		return nil, "", err
+	}
+	destRef, err := alltransports.ParseImageName(fmt.Sprintf("dir://%s", i.opts.DstPath))
+	if err != nil {
+		return nil, "", fmt.Errorf("Invalid destination name %s: %v", i.opts.DstPath, err)
+	}
+
+	imagePullAuths, err := i.getAuthConfigs()
+	if err != nil {
+		return nil, "", err
+	}
+
+	// Try all the possible auth's from the config file
+	var authErr error
+	log.Println("Copying image")
+	for name, auth := range imagePullAuths.Configs {
+		sourceCtx.DockerAuthConfig = &types.DockerAuthConfig{
+			Username: auth.Username,
+			Password: auth.Password,
+		}
+		authErr = copy.Image(policyContext, destRef, srcRef, &copy.Options{
+			RemoveSignatures: false,
+			SignBy:           "",
+			ReportWriter:     os.Stdout,
+			SourceCtx:        sourceCtx,
+			DestinationCtx:   nil,
+			ProgressInterval: PULL_LOG_INTERVAL_SEC,
+		})
+		if authErr == nil {
+			break
+		}
+		log.Printf("Authentication with %s failed: %v", name, authErr)
+	}
+
+	if authErr != nil {
+		return nil, "", fmt.Errorf("Unable to pull docker image: %v\n", authErr)
+	}
+
+	img, err := srcRef.NewImage(sourceCtx)
+	if err != nil {
+		return nil, "", err
+	}
+
+	log.Println("Inspecting image")
+	rawManifest, _, err := img.Manifest()
+	if err != nil {
+		return nil, "", fmt.Errorf("Error while reading image manifest: %v\n", err)
+	}
+	imageDigest, err := manifest.Digest(rawManifest)
+	if err != nil {
+		return nil, "", fmt.Errorf("Error while parsing image manifest: %v\n", err)
+	}
+
+	inspectInfo, err := img.Inspect()
+	if err != nil {
+		return inspectInfo, "", fmt.Errorf("Error while inspecting copied image Manifest: %v\n", err)
+	}
+
+	err = i.extractDownloadedImage(inspectInfo)
+	if err != nil {
+		return nil, "", fmt.Errorf("Error while extracting downloaded image: %v\n", err)
+	}
+
+	return inspectInfo, imageDigest, nil
+}
+
+// extractDownloadedImage will untar all the layer tar files specified in 'info'
+// assuming those files exist in i.opts.DstPath .
+func (i *defaultImageInspector) extractDownloadedImage(info *types.ImageInspectInfo) error {
+	for _, layer := range info.Layers {
+		filename := i.opts.DstPath + "/" + strings.SplitN(layer, ":", 2)[1] + ".tar"
+		log.Printf("Untar %s\n", filename)
+		if err := util.UntarGzFile(filename, i.opts.DstPath); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// dockerCertPath will try to extract the registry name from the image and return
+// "/etc/docker/certs.d/<RERGISTRY_NAME>" if this path exists or nil otherwise.
+func dockerCertPath(fullImageName string) (string, error) {
+	source_name := strings.SplitN(fullImageName, "://", 2)
+	name := source_name[len(source_name)-1]
+	names := strings.SplitN(name, "/", 2)
+	certsPath := DOCKER_CERTS_DIR + "/" + names[0]
+	_, err := os.Stat(certsPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return "", nil
+		}
+		return "", err
+	}
+	return certsPath, nil
+}
+
+// inspectInfoToDockerImage will convert the information in info of type ImageInspectInfo to
+// imageDigest which is of type Digest.
+func inspectInfoToDockerImage(info *types.ImageInspectInfo, imageDigest digest.Digest) *docker.Image {
+	return &docker.Image{
+		ID:            "",
+		RepoDigests:   []string{string(imageDigest)},
+		RepoTags:      []string{info.Tag},
+		Created:       info.Created,
+		Architecture:  info.Architecture,
+		DockerVersion: info.DockerVersion,
+	}
 }
