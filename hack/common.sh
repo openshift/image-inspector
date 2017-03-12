@@ -64,7 +64,7 @@ EOF
 
   unset GOBIN
 
-  export GOPATH=${II_ROOT}/Godeps/_workspace:${II_GOPATH}
+  export GO15VENDOREXPERIMENT=1
   export II_TARGET_BIN=${II_GOPATH}/bin
 }
 
