@@ -31,7 +31,7 @@ const (
 )
 
 var (
-	RHELDistNumbers = [...]int{5, 6, 7}
+	RHELDistNumbers = [...]int{5, 6, 7, 1005, 1006, 1007}
 	osSetEnv        = os.Setenv
 )
 
@@ -94,6 +94,9 @@ func (s *defaultOSCAPScanner) getRHELDist() (int, error) {
 			return 0, err
 		}
 		if strings.Contains(string(output), fmt.Sprintf("%s%d: true", CPE, dist)) {
+			if dist > 1000 { // for centos distributions
+				dist = dist - 1000
+			}
 			return dist, nil
 		}
 	}
