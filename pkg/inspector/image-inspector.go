@@ -415,6 +415,10 @@ func createOutputDir(dirName string, tempName string) (string, error) {
 	return dirName, nil
 }
 
+// pullExtractAndInspectImage will use containers/image library to pull extract and get the image to be scanned
+// and will inspect it for its metadata.
+// Assumes the image to be pulled is with a transport prefix
+// or if not attempts to add the "docker://" prefix to the image.
 func (i *defaultImageInspector) pullExtractAndInspectImage() (*types.ImageInspectInfo, digest.Digest, error) {
 
 	policy, err := signature.NewPolicyFromBytes([]byte(DEFAULT_SIGN_POLICY))
@@ -429,7 +433,12 @@ func (i *defaultImageInspector) pullExtractAndInspectImage() (*types.ImageInspec
 
 	srcRef, err := alltransports.ParseImageName(i.opts.Image)
 	if err != nil {
-		return nil, "", fmt.Errorf("Invalid source name %s: %v", i.opts.Image, err)
+		// try adding "docker://"
+		i.opts.Image = "docker://" + i.opts.Image
+		srcRef, err = alltransports.ParseImageName(i.opts.Image)
+		if err != nil {
+			return nil, "", fmt.Errorf("Invalid source name %s: %v", i.opts.Image, err)
+		}
 	}
 
 	certPath, err := dockerCertPath(i.opts.Image)
