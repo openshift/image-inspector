@@ -87,10 +87,9 @@ function list_test_packages_under() {
     # arguments that use expansion, e.g. paths containing brace expansion or wildcards
     find ${basedir} -not \(                   \
         \(                                    \
-              -path 'Godeps'                  \
+              -path 'vendor'                  \
               -o -path '*_output'             \
               -o -path '*.git'                \
-              -o -path '*Godeps/*'            \
               -o -path '*test/*'              \
         \) -prune                             \
     \) -name '*_test.go' | xargs -n1 dirname | sort -u | xargs -n1 printf "${II_GO_PACKAGE}/%s\n"
@@ -111,13 +110,13 @@ done
 gotest_flags+=" $*"
 
 # Determine packages to test
-godeps_package_prefix="Godeps/_workspace/src/"
+vendor_package_prefix="vendor"
 test_packages=
 if [[ -n "${package_args}" ]]; then
     for package in ${package_args}; do
-        # If we're trying to recursively test a package under Godeps, strip the Godeps prefix so go test can find the packages correctly
-        if [[ "${package}" == "${godeps_package_prefix}"*"/..." ]]; then
-            test_packages="${test_packages} ${package:${#godeps_package_prefix}}"
+        # If we're trying to recursively test a package under vendor, strip the vendor prefix so go test can find the packages correctly
+        if [[ "${package}" == "${vendor_package_prefix}"*"/..." ]]; then
+            test_packages="${test_packages} ${package:${#vendor_package_prefix}}"
         else
             test_packages="${test_packages} ${II_GO_PACKAGE}/${package}"
         fi

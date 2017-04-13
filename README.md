@@ -37,9 +37,9 @@ the OpenSCAP section.  An HTML OpenSCAP scan report will be served on
 
 # Building
 
-To build image-inspector using godep:
+To build image-inspector using make:
 
-    $ godep go build
+    $ make build
 
 # Running as a container
 

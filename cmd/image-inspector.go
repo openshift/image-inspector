@@ -13,7 +13,8 @@ import (
 func main() {
 	inspectorOptions := iicmd.NewDefaultImageInspectorOptions()
 
-	flag.StringVar(&inspectorOptions.URI, "docker", inspectorOptions.URI, "Daemon socket to connect to")
+	flag.BoolVar(&inspectorOptions.UseDockDaemon, "use-docker", inspectorOptions.UseDockDaemon, "Use docker daemon to handle image pulls (requires docker-socket)")
+	flag.StringVar(&inspectorOptions.DockerSocket, "docker-socket", inspectorOptions.DockerSocket, "Daemon socket to connect to")
 	flag.StringVar(&inspectorOptions.Image, "image", inspectorOptions.Image, "Docker image to inspect")
 	flag.StringVar(&inspectorOptions.DstPath, "path", inspectorOptions.DstPath, "Destination path for the image files")
 	flag.StringVar(&inspectorOptions.Serve, "serve", inspectorOptions.Serve, "Host and port where to serve the image with webdav")
@@ -25,6 +26,7 @@ func main() {
 	flag.StringVar(&inspectorOptions.ScanResultsDir, "scan-results-dir", inspectorOptions.ScanResultsDir, "The directory that will contain the results of the scan")
 	flag.BoolVar(&inspectorOptions.OpenScapHTML, "openscap-html-report", inspectorOptions.OpenScapHTML, "Generate an OpenScap HTML report in addition to the ARF formatted report")
 	flag.StringVar(&inspectorOptions.CVEUrlPath, "cve-url", inspectorOptions.CVEUrlPath, "An alternative URL source for CVE files")
+	flag.StringVar(&inspectorOptions.RegistryCertPath, "registry-cert-path", inspectorOptions.RegistryCertPath, "Certificates for authenticating the image registry.")
 
 	flag.Parse()
 

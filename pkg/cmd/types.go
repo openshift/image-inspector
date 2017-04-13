@@ -27,8 +27,10 @@ func (sv *MultiStringVar) String() string {
 // ImageInspectorOptions is the main inspector implementation and holds the configuration
 // for an image inspector.
 type ImageInspectorOptions struct {
-	// URI contains the location of the docker daemon socket to connect to.
-	URI string
+	// UseDockDaemon Flag to use the local docker daemon to handle images
+	UseDockDaemon bool
+	// DockerSocket contains the location of the docker daemon socket to connect to.
+	DockerSocket string
 	// Image contains the docker image to inspect.
 	Image string
 	// DstPath is the destination path for image files.
@@ -52,30 +54,34 @@ type ImageInspectorOptions struct {
 	OpenScapHTML bool
 	// CVEUrlPath An alternative source for the cve files
 	CVEUrlPath string
+	// RegistryCertPath
+	RegistryCertPath string
 }
 
 // NewDefaultImageInspectorOptions provides a new ImageInspectorOptions with default values.
 func NewDefaultImageInspectorOptions() *ImageInspectorOptions {
 	return &ImageInspectorOptions{
-		URI:            "unix:///var/run/docker.sock",
-		Image:          "",
-		DstPath:        "",
-		Serve:          "",
-		Chroot:         false,
-		DockerCfg:      MultiStringVar{[]string{}},
-		Username:       "",
-		PasswordFile:   "",
-		ScanType:       "",
-		ScanResultsDir: "",
-		OpenScapHTML:   false,
-		CVEUrlPath:     oscapscanner.CVEUrl,
+		UseDockDaemon:    false,
+		DockerSocket:     "unix:///var/run/docker.sock",
+		Image:            "",
+		DstPath:          "",
+		Serve:            "",
+		Chroot:           false,
+		DockerCfg:        MultiStringVar{[]string{}},
+		Username:         "",
+		PasswordFile:     "",
+		ScanType:         "",
+		ScanResultsDir:   "",
+		OpenScapHTML:     false,
+		CVEUrlPath:       oscapscanner.CVEUrl,
+		RegistryCertPath: "",
 	}
 }
 
 // Validate performs validation on the field settings.
 func (i *ImageInspectorOptions) Validate() error {
-	if len(i.URI) == 0 {
-		return fmt.Errorf("Docker socket connection must be specified")
+	if i.UseDockDaemon && len(i.DockerSocket) == 0 {
+		return fmt.Errorf("Docker socket connection must be specified if UseDockDaemon is set")
 	}
 	if len(i.Image) == 0 {
 		return fmt.Errorf("Docker image to inspect must be specified")
@@ -121,6 +127,14 @@ func (i *ImageInspectorOptions) Validate() error {
 				i.ScanType, iiapi.ScanOptions)
 		}
 
+	}
+	if len(i.RegistryCertPath) > 0 {
+		if i.UseDockDaemon {
+			return fmt.Errorf("Can't use docker daemon with provider certificates [--use-docker, --cert-path] are mutually exclusive")
+		}
+		if _, err := os.Stat(i.RegistryCertPath); os.IsNotExist(err) {
+			return fmt.Errorf("The provided cert path, %s , does not exists", i.RegistryCertPath)
+		}
 	}
 	return nil
 }

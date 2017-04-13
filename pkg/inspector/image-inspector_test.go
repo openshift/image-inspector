@@ -4,11 +4,12 @@ import (
 	"fmt"
 	docker "github.com/fsouza/go-dockerclient"
 	iiapi "github.com/openshift/image-inspector/pkg/api"
+	"testing"
+
 	iicmd "github.com/openshift/image-inspector/pkg/cmd"
 	"github.com/openshift/image-inspector/pkg/openscap"
 	"io/ioutil"
 	"os"
-	"testing"
 )
 
 type FailMockScanner struct{}
