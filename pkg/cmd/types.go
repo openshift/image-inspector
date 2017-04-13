@@ -54,24 +54,27 @@ type ImageInspectorOptions struct {
 	OpenScapHTML bool
 	// CVEUrlPath An alternative source for the cve files
 	CVEUrlPath string
+	// RegistryCertPath
+	RegistryCertPath string
 }
 
 // NewDefaultImageInspectorOptions provides a new ImageInspectorOptions with default values.
 func NewDefaultImageInspectorOptions() *ImageInspectorOptions {
 	return &ImageInspectorOptions{
-		UseDockDaemon:  false,
-		DockerSocket:   "unix:///var/run/docker.sock",
-		Image:          "",
-		DstPath:        "",
-		Serve:          "",
-		Chroot:         false,
-		DockerCfg:      MultiStringVar{[]string{}},
-		Username:       "",
-		PasswordFile:   "",
-		ScanType:       "",
-		ScanResultsDir: "",
-		OpenScapHTML:   false,
-		CVEUrlPath:     oscapscanner.CVEUrl,
+		UseDockDaemon:    false,
+		DockerSocket:     "unix:///var/run/docker.sock",
+		Image:            "",
+		DstPath:          "",
+		Serve:            "",
+		Chroot:           false,
+		DockerCfg:        MultiStringVar{[]string{}},
+		Username:         "",
+		PasswordFile:     "",
+		ScanType:         "",
+		ScanResultsDir:   "",
+		OpenScapHTML:     false,
+		CVEUrlPath:       oscapscanner.CVEUrl,
+		RegistryCertPath: "",
 	}
 }
 
@@ -124,6 +127,14 @@ func (i *ImageInspectorOptions) Validate() error {
 				i.ScanType, iiapi.ScanOptions)
 		}
 
+	}
+	if len(i.RegistryCertPath) > 0 {
+		if i.UseDockDaemon {
+			return fmt.Errorf("Can't use docker daemon with provider certificates [--use-docker, --cert-path] are mutually exclusive")
+		}
+		if _, err := os.Stat(i.RegistryCertPath); os.IsNotExist(err) {
+			return fmt.Errorf("The provided cert path, %s , does not exists", i.RegistryCertPath)
+		}
 	}
 	return nil
 }

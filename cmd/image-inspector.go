@@ -26,6 +26,7 @@ func main() {
 	flag.StringVar(&inspectorOptions.ScanResultsDir, "scan-results-dir", inspectorOptions.ScanResultsDir, "The directory that will contain the results of the scan")
 	flag.BoolVar(&inspectorOptions.OpenScapHTML, "openscap-html-report", inspectorOptions.OpenScapHTML, "Generate an OpenScap HTML report in addition to the ARF formatted report")
 	flag.StringVar(&inspectorOptions.CVEUrlPath, "cve-url", inspectorOptions.CVEUrlPath, "An alternative URL source for CVE files")
+	flag.StringVar(&inspectorOptions.RegistryCertPath, "registry-cert-path", inspectorOptions.RegistryCertPath, "Certificates for authenticating the image registry.")
 
 	flag.Parse()
 

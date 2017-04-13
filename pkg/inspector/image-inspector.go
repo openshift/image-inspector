@@ -441,7 +441,7 @@ func (i *defaultImageInspector) pullExtractAndInspectImage() (*types.ImageInspec
 		}
 	}
 
-	certPath, err := dockerCertPath(i.opts.Image)
+	certPath, err := i.certPath(i.opts.Image)
 	if err != nil {
 		return nil, "", err
 	}
@@ -532,7 +532,12 @@ func (i *defaultImageInspector) extractDownloadedImage(info *types.ImageInspectI
 
 // dockerCertPath will try to extract the registry name from the image and return
 // "/etc/docker/certs.d/<RERGISTRY_NAME>" if this path exists or nil otherwise.
-func dockerCertPath(fullImageName string) (string, error) {
+func (i *defaultImageInspector) certPath(fullImageName string) (string, error) {
+	if len(i.opts.RegistryCertPath) > 0 {
+		return i.opts.RegistryCertPath, nil
+	}
+
+	// try to find certificates from docker
 	source_name := strings.SplitN(fullImageName, "://", 2)
 	name := source_name[len(source_name)-1]
 	names := strings.SplitN(name, "/", 2)
