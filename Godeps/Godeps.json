@@ -9,6 +9,36 @@
 		{
 			"ImportPath": "github.com/antchfx/xpath",
 			"Rev": "1f3266e7730781347c9decd229c1fe1c18be760c"
+        },
+        {
+			"ImportPath": "github.com/Sirupsen/logrus",
+			"Comment": "v0.9.0-3-g3455d89",
+			"Rev": "3455d89ac9652295c85db2a98ea32f1d61c380bc"
+		},
+		{
+			"ImportPath": "github.com/docker/docker/pkg/jsonlog",
+			"Comment": "v1.13.1",
+			"Rev": "092cba3727bb9b4a2f0e922cd6c0f93ea270e363"
+		},
+		{
+			"ImportPath": "github.com/docker/docker/pkg/jsonmessage",
+			"Comment": "v1.13.1",
+			"Rev": "092cba3727bb9b4a2f0e922cd6c0f93ea270e363"
+		},
+		{
+			"ImportPath": "github.com/docker/docker/pkg/term",
+			"Comment": "v1.13.1",
+			"Rev": "092cba3727bb9b4a2f0e922cd6c0f93ea270e363"
+		},
+		{
+			"ImportPath": "github.com/docker/docker/pkg/term/windows",
+			"Comment": "v1.13.1",
+			"Rev": "092cba3727bb9b4a2f0e922cd6c0f93ea270e363"
+		},
+		{
+			"ImportPath": "github.com/docker/go-units",
+			"Comment": "v0.3.1",
+			"Rev": "f2d77a61e3c169b43402a0a1e84f06daf29b8190"
 		},
 		{
 			"ImportPath": "github.com/fsouza/go-dockerclient",
@@ -94,6 +124,18 @@
 		{
 			"ImportPath": "golang.org/x/net/webdav/internal/xml",
 			"Rev": "e90d6d0afc4c315a0d87a568ae68577cc15149a0"
+        },
+        {
+			"ImportPath": "golang.org/x/net/webdav",
+			"Rev": "db8e4de5b2d6653f66aea53094624468caad15d2"
+		},
+		{
+			"ImportPath": "golang.org/x/net/webdav/internal/xml",
+			"Rev": "db8e4de5b2d6653f66aea53094624468caad15d2"
+		},
+		{
+			"ImportPath": "golang.org/x/sys/unix",
+			"Rev": "833a04a10549a95dc34458c195cbad61bbb6cb4d"
 		}
 	]
 }
