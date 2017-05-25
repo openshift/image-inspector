@@ -168,7 +168,7 @@ func TestGetAuthConfigs(t *testing.T) {
 
 func Test_decodeDockerResponse(t *testing.T) {
 	no_error_input := "{\"Status\": \"fine\"}"
-	one_error := "{\"Status\": \"fine\"}{\"Error\": \"Oops\"}{\"Status\": \"fine\"}"
+	one_error := "{\"Status\": \"fine\"}{\"errorDetail\": {\"Message\": \"Oops\"}}{\"Status\": \"fine\"}"
 	decode_error := "{}{}what"
 	decode_error_message := "Error decoding json: invalid character 'w' looking for beginning of value"
 	tests := map[string]struct {
@@ -177,7 +177,7 @@ func Test_decodeDockerResponse(t *testing.T) {
 		errorMessage   string
 	}{
 		"no error":      {readerInput: no_error_input, expectedErrors: false},
-		"error":         {readerInput: one_error, expectedErrors: true, errorMessage: "Oops"},
+		"one error":     {readerInput: one_error, expectedErrors: true, errorMessage: "Oops"},
 		"decode errror": {readerInput: decode_error, expectedErrors: true, errorMessage: decode_error_message},
 	}
 

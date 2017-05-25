@@ -25,6 +25,8 @@ import (
 
 	iiapi "github.com/openshift/image-inspector/pkg/api"
 	apiserver "github.com/openshift/image-inspector/pkg/imageserver"
+
+	dockermessage "github.com/docker/docker/pkg/jsonmessage"
 )
 
 const (
@@ -195,8 +197,8 @@ func (i *defaultImageInspector) postResults(scanResults iiapi.ScanResult) error 
 // aggregateBytesAndReport sums the numbers recieved from its input channel
 // bytesChan and prints them to the log every PULL_LOG_INTERVAL_SEC seconds.
 // It will exit after bytesChan is closed.
-func aggregateBytesAndReport(bytesChan chan int) {
-	var bytesDownloaded int = 0
+func aggregateBytesAndReport(bytesChan chan int64) {
+	var bytesDownloaded int64 = 0
 	ticker := time.NewTicker(PULL_LOG_INTERVAL_SEC * time.Second)
 	defer ticker.Stop()
 	for {
@@ -219,22 +221,14 @@ func aggregateBytesAndReport(bytesChan chan int) {
 // Errors encountered during parsing are reported to parsedErrors channel.
 // After reader is closed it will send nil on parsedErrors, close bytesChan and exit.
 func decodeDockerResponse(parsedErrors chan error, reader io.Reader) {
-	type progressDetailType struct {
-		Current, Total int
-	}
-	type pullMessage struct {
-		Status, Id     string
-		ProgressDetail progressDetailType
-		Error          string
-	}
-	bytesChan := make(chan int, 100)
-	defer func() { close(bytesChan) }()           // Closing the channel to end the other routine
-	layersBytesDownloaded := make(map[string]int) // bytes downloaded per layer
-	dec := json.NewDecoder(reader)                // decoder for the json messages
+	bytesChan := make(chan int64, 100)
+	defer func() { close(bytesChan) }()             // Closing the channel to end the other routine
+	layersBytesDownloaded := make(map[string]int64) // bytes downloaded per layer
+	dec := json.NewDecoder(reader)                  // decoder for the json messages
 
 	var startedDownloading = false
 	for {
-		var v pullMessage
+		var v dockermessage.JSONMessage
 		if err := dec.Decode(&v); err != nil {
 			if err != io.ErrClosedPipe && err != io.EOF {
 				log.Printf("Error decoding json: %v", err)
@@ -245,8 +239,8 @@ func decodeDockerResponse(parsedErrors chan error, reader io.Reader) {
 			break
 		}
 		// decoding
-		if v.Error != "" {
-			parsedErrors <- fmt.Errorf(v.Error)
+		if v.Error != nil {
+			parsedErrors <- fmt.Errorf(v.Error.Message)
 			break
 		}
 		if v.Status == "Downloading" {
@@ -254,12 +248,12 @@ func decodeDockerResponse(parsedErrors chan error, reader io.Reader) {
 				go aggregateBytesAndReport(bytesChan)
 				startedDownloading = true
 			}
-			bytes := v.ProgressDetail.Current
-			last, existed := layersBytesDownloaded[v.Id]
+			bytes := v.Progress.Current
+			last, existed := layersBytesDownloaded[v.ID]
 			if !existed {
 				last = 0
 			}
-			layersBytesDownloaded[v.Id] = bytes
+			layersBytesDownloaded[v.ID] = bytes
 			bytesChan <- (bytes - last)
 		}
 	}
@@ -300,7 +294,11 @@ func (i *defaultImageInspector) pullImage(client *docker.Client) error {
 		}()
 
 		if parsedError := <-parsedErrors; parsedError != nil {
-			log.Printf("Authentication with %s failed: %v", name, parsedError)
+			if parsedError.Error() == "unauthorized: authentication required" {
+				log.Printf("Authentication with %s failed: %v", name, parsedError)
+			} else {
+				return parsedError
+			}
 		} else {
 			return nil
 		}
