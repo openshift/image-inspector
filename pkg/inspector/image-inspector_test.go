@@ -107,6 +107,7 @@ func TestScanImage(t *testing.T) {
 }
 
 func TestGetAuthConfigs(t *testing.T) {
+	const IMAGE_NAME = "172.30.203.184:5000/hello/world"
 	goodNoAuth := iicmd.NewDefaultImageInspectorOptions()
 
 	goodTwoDockerCfg := iicmd.NewDefaultImageInspectorOptions()
@@ -114,6 +115,7 @@ func TestGetAuthConfigs(t *testing.T) {
 
 	goodUserAndPass := iicmd.NewDefaultImageInspectorOptions()
 	goodUserAndPass.Username = "erez"
+	goodUserAndPass.Image = IMAGE_NAME
 	goodUserAndPass.PasswordFile = "test/passwordFile1"
 
 	badUserAndPass := iicmd.NewDefaultImageInspectorOptions()
@@ -134,29 +136,28 @@ func TestGetAuthConfigs(t *testing.T) {
 		expectedAuths int
 		shouldFail    bool
 	}{
-		"two dockercfg":               {opts: goodTwoDockerCfg, expectedAuths: 3, shouldFail: false},
+		"two dockercfg":               {opts: goodTwoDockerCfg, expectedAuths: 2, shouldFail: false},
 		"username and passwordFile":   {opts: goodUserAndPass, expectedAuths: 1, shouldFail: false},
-		"two dockercfg, one missing":  {opts: badDockerCfgMissing, expectedAuths: 2, shouldFail: false},
-		"two dockercfg, one wrong":    {opts: badDockerCfgWrong, expectedAuths: 2, shouldFail: false},
-		"two dockercfg, no auth":      {opts: badDockerCfgNoAuth, expectedAuths: 2, shouldFail: false},
-		"password file doens't exist": {opts: badUserAndPass, expectedAuths: 1, shouldFail: true},
-		"no auths, default expected":  {opts: goodNoAuth, expectedAuths: 1, shouldFail: false},
+		"two dockercfg, one missing":  {opts: badDockerCfgMissing, expectedAuths: 1, shouldFail: false},
+		"two dockercfg, one wrong":    {opts: badDockerCfgWrong, expectedAuths: 1, shouldFail: false},
+		"two dockercfg, one no auth":  {opts: badDockerCfgNoAuth, expectedAuths: 1, shouldFail: false},
+		"password file doens't exist": {opts: badUserAndPass, expectedAuths: 0, shouldFail: true},
+		"no auths, default expected":  {opts: goodNoAuth, expectedAuths: 0, shouldFail: false},
 	}
 
 	for k, v := range tests {
 		ii := &defaultImageInspector{*v.opts, iiapi.InspectorMetadata{}, nil}
-		auths, err := ii.getAuthConfigs()
+		kr, err := ii.getAuthConfigs()
 		if !v.shouldFail {
 			if err != nil {
 				t.Errorf("%s expected to succeed but received %v", k, err)
 			}
 			var authsLen int = 0
-			if auths != nil {
-				authsLen = len(auths.Configs)
-			}
+			auths, _ := kr.Lookup(IMAGE_NAME)
+			authsLen = len(auths)
 			if auths == nil || v.expectedAuths != authsLen {
 				t.Errorf("%s expected len to be %d but got %d from %v",
-					k, v.expectedAuths, authsLen, auths)
+					k, v.expectedAuths, authsLen, kr)
 			}
 		} else {
 			if err == nil {

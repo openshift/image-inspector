@@ -10,6 +10,7 @@ import (
 	"math"
 	"math/big"
 	"net/http"
+	"net/url"
 	"os"
 	"path"
 	"strings"
@@ -25,6 +26,7 @@ import (
 
 	iiapi "github.com/openshift/image-inspector/pkg/api"
 	apiserver "github.com/openshift/image-inspector/pkg/imageserver"
+	"k8s.io/kubernetes/pkg/credentialprovider"
 )
 
 const (
@@ -271,15 +273,21 @@ func decodeDockerResponse(parsedErrors chan error, reader io.Reader) {
 func (i *defaultImageInspector) pullImage(client *docker.Client) error {
 	log.Printf("Pulling image %s", i.opts.Image)
 
-	var imagePullAuths *docker.AuthConfigurations
+	var kr credentialprovider.BasicDockerKeyring
 	var authCfgErr error
-	if imagePullAuths, authCfgErr = i.getAuthConfigs(); authCfgErr != nil {
+	if kr, authCfgErr = i.getAuthConfigs(); authCfgErr != nil {
 		return authCfgErr
 	}
 
 	// Try all the possible auth's from the config file
 	var authErr error
-	for name, auth := range imagePullAuths.Configs {
+	auths, found := kr.Lookup(i.opts.Image)
+	if !found {
+		auths = []docker.AuthConfiguration{{}}
+		log.Printf("WARNING: No valid authentications were found to download the image, using defualt")
+	}
+
+	for name, auth := range auths {
 		parsedErrors := make(chan error, 100)
 		defer func() { close(parsedErrors) }()
 
@@ -471,14 +479,27 @@ func appendDockerCfgConfigs(dockercfg string, cfgs *docker.AuthConfigurations) e
 		return fmt.Errorf("No auths were found in the given dockercfg file\n")
 	}
 	for name, ac := range imagePullAuths.Configs {
-		cfgs.Configs[fmt.Sprintf("%s/%s", dockercfg, name)] = ac
+		cfgs.Configs[name] = ac
 	}
 	return nil
 }
 
-func (i *defaultImageInspector) getAuthConfigs() (*docker.AuthConfigurations, error) {
+func cfgConversions(cfgs *docker.AuthConfigurations) credentialprovider.DockerConfig {
+	var out credentialprovider.DockerConfig = make(credentialprovider.DockerConfig)
+	for name, ac := range cfgs.Configs {
+		out[name] = credentialprovider.DockerConfigEntry{
+			Username: ac.Username,
+			Password: ac.Password,
+			Email:    ac.Email,
+		}
+	}
+	return out
+}
+
+func (i *defaultImageInspector) getAuthConfigs() (credentialprovider.BasicDockerKeyring, error) {
+	var kr credentialprovider.BasicDockerKeyring = credentialprovider.BasicDockerKeyring{}
 	imagePullAuths := &docker.AuthConfigurations{
-		map[string]docker.AuthConfiguration{"Default Empty Authentication": {}}}
+		map[string]docker.AuthConfiguration{"*.*.*.*": {}}}
 	if len(i.opts.DockerCfg.Values) > 0 {
 		for _, dcfgFile := range i.opts.DockerCfg.Values {
 			if err := appendDockerCfgConfigs(dcfgFile, imagePullAuths); err != nil {
@@ -486,17 +507,25 @@ func (i *defaultImageInspector) getAuthConfigs() (*docker.AuthConfigurations, er
 			}
 		}
 	}
+	kr.Add(cfgConversions(imagePullAuths))
 
 	if i.opts.Username != "" {
 		token, err := ioutil.ReadFile(i.opts.PasswordFile)
 		if err != nil {
-			return nil, fmt.Errorf("Unable to read password file: %v\n", err)
+			return kr, fmt.Errorf("Unable to read password file: %v\n", err)
 		}
-		imagePullAuths = &docker.AuthConfigurations{
-			map[string]docker.AuthConfiguration{"": {Username: i.opts.Username, Password: string(token)}}}
+		var host string
+		imageUrl, err := url.Parse("https://" + i.opts.Image)
+		if err != nil {
+			log.Printf("WARNING: Can parse host from image name: %s", i.opts.Image)
+			host = "*.*.*.*"
+		} else {
+			host = imageUrl.Host
+		}
+		kr.Add(credentialprovider.DockerConfig{host: {Username: i.opts.Username, Password: string(token)}})
 	}
 
-	return imagePullAuths, nil
+	return kr, nil
 }
 
 func (i *defaultImageInspector) scanImage(s iiapi.Scanner) ([]byte, []byte, error) {
