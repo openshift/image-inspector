@@ -23,6 +23,7 @@ import (
 
 	iiapi "github.com/openshift/image-inspector/pkg/api"
 	apiserver "github.com/openshift/image-inspector/pkg/imageserver"
+	"github.com/openshift/image-inspector/pkg/clamav"
 )
 
 const (
@@ -99,46 +100,58 @@ func NewDefaultImageInspector(opts iicmd.ImageInspectorOptions) ImageInspector {
 
 // Inspect inspects and serves the image based on the ImageInspectorOptions.
 func (i *defaultImageInspector) Inspect() error {
-	client, err := docker.NewClient(i.opts.URI)
-	if err != nil {
-		return fmt.Errorf("Unable to connect to docker daemon: %v\n", err)
-	}
-
-	if err = i.pullImage(client); err != nil {
-		return err
-	}
-
-	randomName, err := generateRandomName()
-	if err != nil {
-		return err
-	}
-
-	imageMetadata, err := i.createAndExtractImage(client, randomName)
-	if err != nil {
-		return err
-	}
-	i.meta.Image = *imageMetadata
-
 	var scanReport []byte
 	var htmlScanReport []byte
-	if i.opts.ScanType == "openscap" {
+	var scanner iiapi.Scanner
+
+	switch i.opts.ScanType {
+	case "openscap":
+		client, err := docker.NewClient(i.opts.URI)
+		if err != nil {
+			return fmt.Errorf("Unable to connect to docker daemon: %v\n", err)
+		}
+
+		if err = i.pullImage(client); err != nil {
+			return err
+		}
+
+		randomName, err := generateRandomName()
+		if err != nil {
+			return err
+		}
+
+		imageMetadata, err := i.createAndExtractImage(client, randomName)
+		if err != nil {
+			return err
+		}
+		i.meta.Image = *imageMetadata
+
 		if i.opts.ScanResultsDir, err = createOutputDir(i.opts.ScanResultsDir, "image-inspector-scan-results-"); err != nil {
 			return err
 		}
-		scanner := openscap.NewDefaultScanner(OSCAP_CVE_DIR, i.opts.ScanResultsDir, i.opts.CVEUrlPath, i.opts.OpenScapHTML)
+		scanner = openscap.NewDefaultScanner(OSCAP_CVE_DIR, i.opts.ScanResultsDir, i.opts.CVEUrlPath, i.opts.OpenScapHTML)
+
 		scanReport, htmlScanReport, err = i.scanImage(scanner)
 		if err != nil {
+			// TODO
 			i.meta.OpenSCAP.SetError(err)
 			log.Printf("Unable to scan image: %v", err)
 		} else {
 			i.meta.OpenSCAP.Status = iiapi.StatusSuccess
 		}
+
+		if i.imageServer != nil {
+			return i.imageServer.ServeImage(&i.meta,
+				scanReport, htmlScanReport)
+		}
+	case "clamav":
+		scanner = clamav.NewScanner(i.opts.DstPath)
+		scanner.Scan("", nil)
+	default:
+		return fmt.Errorf("unsupported scan type: %s", i.opts.ScanType)
 	}
 
-	if i.imageServer != nil {
-		return i.imageServer.ServeImage(&i.meta,
-			scanReport, htmlScanReport)
-	}
+
 	return nil
 }
 
