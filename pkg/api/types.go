@@ -27,7 +27,7 @@ func (osm *OpenSCAPMetadata) SetError(err error) {
 }
 
 var (
-	ScanOptions = []string{"openscap"}
+	ScanOptions = []string{"openscap", "fake-scan"}
 )
 
 // InspectorMetadata is the metadata type with information about image-inspector's operation

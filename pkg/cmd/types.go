@@ -31,6 +31,8 @@ type ImageInspectorOptions struct {
 	URI string
 	// Image contains the docker image to inspect.
 	Image string
+	// Container id is the pid of a running container to be scanned
+	ContainerId string
 	// DstPath is the destination path for image files.
 	DstPath string
 	// Serve holds the host and port for where to serve the image with webdav.
@@ -77,8 +79,8 @@ func (i *ImageInspectorOptions) Validate() error {
 	if len(i.URI) == 0 {
 		return fmt.Errorf("Docker socket connection must be specified")
 	}
-	if len(i.Image) == 0 {
-		return fmt.Errorf("Docker image to inspect must be specified")
+	if len(i.Image) == 0 && len(i.ContainerId) == 0{
+		return fmt.Errorf("Docker image or container id to inspect must be specified")
 	}
 	if len(i.DockerCfg.Values) > 0 && len(i.Username) > 0 {
 		return fmt.Errorf("Only specify dockercfg file or username/password pair for authentication")

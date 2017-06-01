@@ -23,6 +23,7 @@ import (
 
 	iiapi "github.com/openshift/image-inspector/pkg/api"
 	apiserver "github.com/openshift/image-inspector/pkg/imageserver"
+	"path/filepath"
 )
 
 const (
@@ -99,33 +100,71 @@ func NewDefaultImageInspector(opts iicmd.ImageInspectorOptions) ImageInspector {
 
 // Inspect inspects and serves the image based on the ImageInspectorOptions.
 func (i *defaultImageInspector) Inspect() error {
+	// TODO
+	var err error = nil
+
 	client, err := docker.NewClient(i.opts.URI)
 	if err != nil {
 		return fmt.Errorf("Unable to connect to docker daemon: %v\n", err)
 	}
 
-	if err = i.pullImage(client); err != nil {
-		return err
-	}
+	if i.opts.ContainerId != "" {
+		containerMetadata, err := client.InspectContainer(i.opts.ContainerId)
+		if err != nil {
+			return fmt.Errorf("Unable to get docker container information: %v\n", err)
+		}
 
-	randomName, err := generateRandomName()
-	if err != nil {
-		return err
-	}
+		imageMetadata, err := client.InspectImage(containerMetadata.Image)
+		if err != nil {
+			return fmt.Errorf("Unable to get docker image information: %v\n", err)
+		}
 
-	imageMetadata, err := i.createAndExtractImage(client, randomName)
-	if err != nil {
-		return err
+		if i.opts.DstPath, err = createOutputDir(i.opts.DstPath, "image-inspector-"); err != nil {
+			return err
+		}
+
+		// TODO will a link work here?
+		if err := os.Symlink(fmt.Sprintf("/proc/%d/root", containerMetadata.State.Pid), filepath.Join(i.opts.DstPath, "root")); err != nil {
+			return err
+		}
+
+		i.meta.Image = *imageMetadata
+	} else {
+
+		if err = i.pullImage(client); err != nil {
+			return err
+		}
+
+		randomName, err := generateRandomName()
+		if err != nil {
+			return err
+		}
+
+		imageMetadata, err := i.createAndExtractImage(client, randomName)
+		if err != nil {
+			return err
+		}
+		i.meta.Image = *imageMetadata
 	}
-	i.meta.Image = *imageMetadata
 
 	var scanReport []byte
 	var htmlScanReport []byte
-	if i.opts.ScanType == "openscap" {
+
+	switch i.opts.ScanType {
+	case "openscap":
 		if i.opts.ScanResultsDir, err = createOutputDir(i.opts.ScanResultsDir, "image-inspector-scan-results-"); err != nil {
 			return err
 		}
 		scanner := openscap.NewDefaultScanner(OSCAP_CVE_DIR, i.opts.ScanResultsDir, i.opts.CVEUrlPath, i.opts.OpenScapHTML)
+		scanReport, htmlScanReport, err = i.scanImage(scanner)
+		if err != nil {
+			i.meta.OpenSCAP.SetError(err)
+			log.Printf("Unable to scan image: %v", err)
+		} else {
+			i.meta.OpenSCAP.Status = iiapi.StatusSuccess
+		}
+	case "fake-scan":
+		scanner := &FakeScanner{}
 		scanReport, htmlScanReport, err = i.scanImage(scanner)
 		if err != nil {
 			i.meta.OpenSCAP.SetError(err)
