@@ -12,6 +12,18 @@
   revision = "bf97c77db7c945cbcdbf09d56c6f87a66f54537b"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/golang/glog"
+  packages = ["."]
+  revision = "23def4e6c14b4da8ac2ed8007337bc5eb5007998"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/openshift/clam-scanner"
+  packages = ["pkg/clamav"]
+  revision = "f34ad6de7f7afff39452e0e11f8549939e067b06"
+
+[[projects]]
   name = "github.com/subchen/go-xmldom"
   packages = ["."]
   revision = "93fb82989feca2cc04221f1483c8fe1dc98ed503"
@@ -25,6 +37,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "21cc774f7700ad2e95d494bffe814a1f068d7213b4d00cf88359b3f3f2f0984d"
+  inputs-digest = "7db45c00b13647e675385979ff2b06636b9a9487bed8e4505f742ac7145a4b41"
   solver-name = "gps-cdcl"
   solver-version = 1
