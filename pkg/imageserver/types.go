@@ -7,9 +7,8 @@ import (
 // ImageServer abstracts the serving of image information.
 type ImageServer interface {
 	// ServeImage Serves the image
-	ServeImage(meta *iiapi.InspectorMetadata,
-		scanReport []byte,
-		htmlScanReport []byte) error
+	// TODO: Move the scanReport and htmlScanReport into OpenSCAP results?
+	ServeImage(meta *iiapi.InspectorMetadata, results iiapi.ScanResult, scanReport []byte, htmlScanReport []byte) error
 }
 
 // ImageServerOptions is used to configure an image server.
@@ -20,6 +19,8 @@ type ImageServerOptions struct {
 	HealthzURL string
 	// APIURL is the relative url where the api will be served.  ex /api
 	APIURL string
+	// ResultAPIUrlPath is the relative url where the results JSON will be served. ex. /results
+	ResultAPIUrlPath string
 	// APIVersions are the supported API versions.
 	APIVersions iiapi.APIVersions
 	// MetadataURL is the relative url of the metadata content.  ex /api/v1/metadata

@@ -3,6 +3,8 @@ package openscap
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -27,7 +29,7 @@ const (
 	HTMLResultFile  = "results.html"
 	TmpDir          = "/tmp"
 	Linux           = "Linux"
-	OpenSCAP        = "OpenSCAP"
+	OpenSCAP        = "openscap"
 	ImageShortIDLen = 11
 	Unknown         = "Unknown"
 	LinuxVersionPH  = "Unknown"
@@ -53,6 +55,12 @@ type chrootOscapFunc func(...string) ([]byte, error)
 // setEnvFunc provides an injectable way to get the cve file for testing.
 type setEnvFunc func() error
 
+// OpenSCAPReport holds the both Arf and HTML versions of openscap report.
+type OpenSCAPReport struct {
+	ArfBytes  []byte
+	HTMLBytes []byte
+}
+
 type defaultOSCAPScanner struct {
 	// CVEDir is the directory where the CVE file is saved
 	CVEDir string
@@ -73,6 +81,8 @@ type defaultOSCAPScanner struct {
 
 	// Whether or not to generate an HTML report
 	HTML bool
+
+	reports OpenSCAPReport
 }
 
 // ensure interface is implemented
@@ -91,6 +101,7 @@ func NewDefaultScanner(cveDir, resultsDir, CVEUrlAltPath string, html bool) iiap
 	scanner.inputCVE = scanner.getInputCVE
 	scanner.chrootOscap = scanner.oscapChroot
 	scanner.setEnv = scanner.setOscapChrootEnv
+	scanner.reports = OpenSCAPReport{}
 
 	return scanner
 }
@@ -179,62 +190,88 @@ func (s *defaultOSCAPScanner) oscapChroot(oscapArgs ...string) ([]byte, error) {
 	return out, err
 }
 
-func (s *defaultOSCAPScanner) Scan(mountPath string, image *docker.Image) error {
+func (s *defaultOSCAPScanner) Scan(mountPath string, image *docker.Image) ([]iiapi.Result, interface{}, error) {
 	fi, err := os.Stat(mountPath)
 	if err != nil || os.IsNotExist(err) || !fi.IsDir() {
-		return fmt.Errorf("%s is not a directory, error: %v", mountPath, err)
+		return nil, nil, fmt.Errorf("%s is not a directory, error: %v", mountPath, err)
 	}
 	if image == nil {
-		return fmt.Errorf("image cannot be nil")
+		return nil, nil, fmt.Errorf("image cannot be nil")
 	}
 	s.image = image
 	s.imageMountPath = mountPath
 
 	rhelDist, err := s.rhelDist()
 	if err != nil {
-		return fmt.Errorf("Unable to get RHEL distribution number: %v\n", err)
+		return nil, nil, fmt.Errorf("Unable to get RHEL distribution number: %v\n", err)
 	}
 
 	cveFileName, err := s.inputCVE(rhelDist)
 	if err != nil {
-		return fmt.Errorf("Unable to retreive the CVE file: %v\n", err)
+		return nil, nil, fmt.Errorf("Unable to retreive the CVE file: %v\n", err)
 	}
 
-	args := []string{"xccdf", "eval", "--results-arf", s.ResultsFileName()}
+	args := []string{"xccdf", "eval", "--results-arf", path.Join(s.ResultsDir, ArfResultFile)}
 
 	if s.HTML {
-		args = append(args, "--report", s.HTMLResultsFileName())
+		args = append(args, "--report", path.Join(s.ResultsDir, HTMLResultFile))
 	}
+	log.Printf("Writing OpenSCAP results to %s", s.ResultsDir)
 
 	args = append(args, cveFileName)
 
 	_, err = s.chrootOscap(args...)
+	if err != nil {
+		return nil, nil, err
+	}
 
-	return err
+	// for mock/testing
+	if len(s.reports.ArfBytes) > 0 {
+		return ParseResults(s.reports.ArfBytes), s.reports, nil
+	}
 
+	s.reports.ArfBytes, s.reports.HTMLBytes, err = s.readOpenSCAPReports()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return ParseResults(s.reports.ArfBytes), s.reports, nil
 }
 
-func (s *defaultOSCAPScanner) ScannerName() string {
+func (s *defaultOSCAPScanner) readOpenSCAPReports() ([]byte, []byte, error) {
+	empty := []byte{}
+	arfResults, err := ioutil.ReadFile(path.Join(s.ResultsDir, ArfResultFile))
+	if err != nil {
+		return empty, empty, err
+	}
+	if s.HTML {
+		htmlResults, err := ioutil.ReadFile(path.Join(s.ResultsDir, HTMLResultFile))
+		if err != nil {
+			return empty, empty, err
+		}
+		return htmlResults, arfResults, nil
+	}
+	return arfResults, empty, nil
+}
+
+func (s *defaultOSCAPScanner) Name() string {
 	return OpenSCAP
-}
-
-func (s *defaultOSCAPScanner) ResultsFileName() string {
-	return path.Join(s.ResultsDir, ArfResultFile)
-}
-
-func (s *defaultOSCAPScanner) HTMLResultsFileName() string {
-	return path.Join(s.ResultsDir, HTMLResultFile)
 }
 
 func ParseResults(report []byte) []iiapi.Result {
 	ret := []iiapi.Result{}
-	node := xmldom.Must(xmldom.ParseXML(string(report))).Root
+	doc, err := xmldom.ParseXML(string(report))
+	if err != nil {
+		log.Printf("Error parsing result XML: %v", err)
+		return []iiapi.Result{}
+	}
+	node := xmldom.Must(doc, nil).Root
 	for _, c := range node.Query("//rule-result") {
 		if !strings.Contains(c.GetChild("result").Text, "fail") {
 			continue
 		}
 		result := iiapi.Result{
-			Name:           "openscap",
+			Name:           OpenSCAP,
 			ScannerVersion: OpenSCAPVersion,
 			Timestamp:      time.Now(),
 			Reference:      fmt.Sprintf("%s=%s", CVEDetailsUrl, strings.TrimSpace(c.GetChild("ident").Text)),

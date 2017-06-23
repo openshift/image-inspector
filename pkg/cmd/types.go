@@ -56,6 +56,8 @@ type ImageInspectorOptions struct {
 	// CVEUrlPath An alternative source for the cve files
 	// TODO: Move this into openscap plugin options.
 	CVEUrlPath string
+	// ClamSocket is the location of clamav socket file
+	ClamSocket string
 	// PostResultURL represents an URL where the image-inspector should post the results of
 	// the scan.
 	PostResultURL string
@@ -83,19 +85,19 @@ func NewDefaultImageInspectorOptions() *ImageInspectorOptions {
 // Validate performs validation on the field settings.
 func (i *ImageInspectorOptions) Validate() error {
 	if len(i.URI) == 0 {
-		return fmt.Errorf("Docker socket connection must be specified")
+		return fmt.Errorf("docker socket connection must be specified")
 	}
 	if len(i.Image) == 0 {
-		return fmt.Errorf("Docker image to inspect must be specified")
+		return fmt.Errorf("docker image to inspect must be specified")
 	}
 	if len(i.DockerCfg.Values) > 0 && len(i.Username) > 0 {
-		return fmt.Errorf("Only specify dockercfg file or username/password pair for authentication")
+		return fmt.Errorf("only specify dockercfg file or username/password pair for authentication")
 	}
 	if len(i.Username) > 0 && len(i.PasswordFile) == 0 {
-		return fmt.Errorf("Please specify password for the username")
+		return fmt.Errorf("please specify password-file for the given username")
 	}
 	if len(i.Serve) == 0 && i.Chroot {
-		return fmt.Errorf("Change root can be used only when serving the image through webdav")
+		return fmt.Errorf("change root can be used only when serving the image through webdav")
 	}
 	if len(i.ScanResultsDir) > 0 && len(i.ScanType) == 0 {
 		return fmt.Errorf("scan-result-dir can be used only when spacifing scan-type")
@@ -103,11 +105,14 @@ func (i *ImageInspectorOptions) Validate() error {
 	if len(i.ScanResultsDir) > 0 {
 		fi, err := os.Stat(i.ScanResultsDir)
 		if err == nil && !fi.IsDir() {
-			return fmt.Errorf("%s is not a directory", i.ScanResultsDir)
+			return fmt.Errorf("scan-results-dir %q is not a directory", i.ScanResultsDir)
 		}
 	}
+	if len(i.PostResultTokenFile) > 0 && len(i.PostResultURL) == 0 {
+		return fmt.Errorf("post-results-url must be set to use post-results-token-file")
+	}
 	if i.OpenScapHTML && (len(i.ScanType) == 0 || i.ScanType != "openscap") {
-		return fmt.Errorf("OpenScapHtml can be used only when specifying scan-type as \"openscap\"")
+		return fmt.Errorf("openscap-html-report can be used only when specifying scan-type as \"openscap\"")
 	}
 	for _, fl := range append(i.DockerCfg.Values, i.PasswordFile) {
 		if len(fl) > 0 {
@@ -128,7 +133,23 @@ func (i *ImageInspectorOptions) Validate() error {
 			return fmt.Errorf("%s is not one of the available scan-types which are %v",
 				i.ScanType, iiapi.ScanOptions)
 		}
-
 	}
+	if i.ScanType == "clamav" && len(i.ClamSocket) == 0 {
+		return fmt.Errorf("clam-socket must be set to use clamav scan type")
+	}
+
+	// A valid scan-type must be specified.
+	var found bool = false
+	for _, opt := range iiapi.ScanOptions {
+		if i.ScanType == opt {
+			found = true
+			break
+		}
+	}
+	if !found {
+		return fmt.Errorf("%s is not one of the available scan-types which are %v",
+			i.ScanType, iiapi.ScanOptions)
+	}
+
 	return nil
 }

@@ -108,12 +108,15 @@ func TestScan(t *testing.T) {
 		rhelDist:    rhel7Dist,
 		inputCVE:    inputCVEMock,
 		chrootOscap: okChrootOscap,
+		HTML:        false,
+		reports:     OpenSCAPReport{ArfBytes: []byte("<mock><rule-result><result>pass</result></rule-result></mock>")},
 	}
 
 	tests := map[string]struct {
 		ts            iiapi.Scanner
 		shouldFail    bool
 		expectedError error
+		evalReport    func(interface{}) bool
 	}{
 		"cant find rhel dist": {
 			ts:            tsNoRhelDist,
@@ -125,7 +128,7 @@ func TestScan(t *testing.T) {
 			shouldFail:    true,
 			expectedError: noInputCVEErr,
 		},
-		"can't chroot to moutpath": {
+		"can't chroot to mountpath": {
 			ts:            tsCantChroot,
 			shouldFail:    true,
 			expectedError: cantChrootErr,
@@ -134,15 +137,36 @@ func TestScan(t *testing.T) {
 			ts:         tsSuccessMocks,
 			shouldFail: false,
 		},
+		"happy flow with reports": {
+			ts:         tsSuccessMocks,
+			shouldFail: false,
+			evalReport: func(r interface{}) bool {
+				report, ok := r.(OpenSCAPReport)
+				if !ok {
+					t.Logf("evalReport: unable to convert %#v into OpenSCAPReport", r)
+					return false
+				}
+				if len(report.ArfBytes) == 0 {
+					t.Log("evalReport: expected arf results, got empty bytes")
+					return false
+				}
+				return true
+			},
+		},
 	}
 
 	for k, v := range tests {
-		err := v.ts.Scan(".", &docker.Image{})
+		_, report, err := v.ts.Scan(".", &docker.Image{})
 		if v.shouldFail && !strings.Contains(err.Error(), v.expectedError.Error()) {
-			t.Errorf("%s expected  to cause error:\n%v\nBut got:\n%v", k, v.expectedError, err)
+			t.Errorf("%s expected to cause error:\n%v\nBut got:\n%v", k, v.expectedError, err)
 		}
 		if !v.shouldFail && err != nil {
 			t.Errorf("%s expected to succeed but failed with %v", k, err)
+		}
+		if v.evalReport != nil {
+			if !v.evalReport(report) {
+				t.Errorf("%s expected to succesfully evaluate the report", k)
+			}
 		}
 	}
 
@@ -154,7 +178,7 @@ func TestScan(t *testing.T) {
 		"mount path is not a directory": {"openscap.go", &docker.Image{}},
 		"image is nil":                  {".", nil},
 	} {
-		if nil == tsSuccessMocks.Scan(v.mountPath, v.image) {
+		if _, _, err := tsSuccessMocks.Scan(v.mountPath, v.image); err == nil {
 			t.Errorf("%s did not fail", k)
 		}
 	}

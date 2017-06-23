@@ -27,6 +27,7 @@ func main() {
 	flag.StringVar(&inspectorOptions.ScanResultsDir, "scan-results-dir", inspectorOptions.ScanResultsDir, "The directory that will contain the results of the scan")
 	flag.BoolVar(&inspectorOptions.OpenScapHTML, "openscap-html-report", inspectorOptions.OpenScapHTML, "Generate an OpenScap HTML report in addition to the ARF formatted report")
 	flag.StringVar(&inspectorOptions.CVEUrlPath, "cve-url", inspectorOptions.CVEUrlPath, "An alternative URL source for CVE files")
+	flag.StringVar(&inspectorOptions.ClamSocket, "clam-socket", inspectorOptions.ClamSocket, "Location of clamav socket file (default: '')")
 	flag.StringVar(&inspectorOptions.PostResultURL, "post-results-url", inspectorOptions.PostResultURL, "After scan finish, HTTP POST the results to this URL")
 	flag.StringVar(&inspectorOptions.PostResultTokenFile, "post-results-token-file", inspectorOptions.PostResultTokenFile, "If specified, content of it will be added to the POST result URL (?token=....)")
 	flag.StringVar(&inspectorOptions.AuthTokenFile, "webdav-token-file", inspectorOptions.AuthTokenFile, "If specified, token used to authenticate to Image Inspector will be read from this file")
@@ -44,11 +45,11 @@ func main() {
 	}
 
 	if err := inspectorOptions.Validate(); err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error: %v", err)
 	}
 
 	inspector := ii.NewDefaultImageInspector(*inspectorOptions)
 	if err := inspector.Inspect(); err != nil {
-		log.Fatalf("Error inspecting image: %v", err)
+		log.Fatalf("Error: %v", err)
 	}
 }

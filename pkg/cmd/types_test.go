@@ -26,10 +26,13 @@ func TestValidate(t *testing.T) {
 	goodConfigUsername.Image = "image"
 	goodConfigUsername.Username = "username"
 	goodConfigUsername.PasswordFile = "types.go"
+	goodConfigUsername.ScanType = "clamav"
+	goodConfigUsername.ClamSocket = "clamav"
 
 	goodConfigWithDockerCfg := NewDefaultImageInspectorOptions()
 	goodConfigWithDockerCfg.Image = "image"
 	goodConfigWithDockerCfg.DockerCfg.Set("types.go")
+	goodConfigWithDockerCfg.ScanType = "openscap"
 
 	noScanTypeAndDir := NewDefaultImageInspectorOptions()
 	noScanTypeAndDir.Image = "image"

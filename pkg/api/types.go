@@ -16,7 +16,7 @@ const (
 )
 
 // The default version for the result API object
-const APIVersion = "v1alpha"
+const DefaultResultsAPIVersion = "v1alpha"
 
 // ScanResult represents the compacted result of all scans performed on the image
 type ScanResult struct {
@@ -25,7 +25,9 @@ type ScanResult struct {
 	// ImageName is a full pull spec of the input image
 	ImageName string `json:"imageName"`
 	// ImageIUD is a SHA256 identifier of the scanned image
-	ImageID string `json:"imageID"`
+	// Note that we don't set the imageID when container is the target of the scan.
+	// FIXME: We should add ContainerID here in that case.
+	ImageID string `json:"imageID,omitempty"`
 	// Results contains compacted results of various scans performed on the image.
 	// Empty results means no problems were found with the given image.
 	Results []Result `json:"results,omitempty"`
@@ -76,12 +78,13 @@ func (osm *OpenSCAPMetadata) SetError(err error) {
 }
 
 var (
-	ScanOptions = []string{"openscap"}
+	ScanOptions = []string{"openscap", "clamav"}
 )
 
 // InspectorMetadata is the metadata type with information about image-inspector's operation
 type InspectorMetadata struct {
 	docker.Image // Metadata about the inspected image
+
 	// OpenSCAP describes the state of the OpenSCAP scan
 	OpenSCAP *OpenSCAPMetadata
 }
@@ -94,12 +97,11 @@ type APIVersions struct {
 
 // Scanner interface that all scanners should define.
 type Scanner interface {
-	// Scan will scan the image
-	Scan(string, *docker.Image) error
-	// ScannerName is the scanner's name
-	ScannerName() string
-	// ResultFileName returns the name of the results file
-	ResultsFileName() string
-	// HtmlResultFileName returns the name of the results file
-	HTMLResultsFileName() string
+	// Scan will perform a scan on the given path for the given Image.
+	// It should return compacted results for JSON serialization and additionally scanner
+	// specific results with more details.
+	Scan(path string, image *docker.Image) ([]Result, interface{}, error)
+
+	// Name is the scanner's name
+	Name() string
 }

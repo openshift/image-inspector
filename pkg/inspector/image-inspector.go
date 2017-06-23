@@ -24,6 +24,7 @@ import (
 	iicmd "github.com/openshift/image-inspector/pkg/cmd"
 
 	iiapi "github.com/openshift/image-inspector/pkg/api"
+	"github.com/openshift/image-inspector/pkg/clamav"
 	apiserver "github.com/openshift/image-inspector/pkg/imageserver"
 )
 
@@ -34,6 +35,7 @@ const (
 	OWNER_PERM_RW            = 0600
 	HEALTHZ_URL_PATH         = "/healthz"
 	API_URL_PREFIX           = "/api"
+	RESULT_API_URL_PATH      = "/results"
 	CONTENT_URL_PREFIX       = API_URL_PREFIX + "/" + VERSION_TAG + "/content/"
 	METADATA_URL_PATH        = API_URL_PREFIX + "/" + VERSION_TAG + "/metadata"
 	OPENSCAP_URL_PATH        = API_URL_PREFIX + "/" + VERSION_TAG + "/openscap"
@@ -86,6 +88,7 @@ func NewDefaultImageInspector(opts iicmd.ImageInspectorOptions) ImageInspector {
 			ServePath:         opts.Serve,
 			HealthzURL:        HEALTHZ_URL_PATH,
 			APIURL:            API_URL_PREFIX,
+			ResultAPIUrlPath:  RESULT_API_URL_PATH,
 			APIVersions:       iiapi.APIVersions{Versions: []string{VERSION_TAG}},
 			MetadataURL:       METADATA_URL_PATH,
 			ContentURL:        CONTENT_URL_PREFIX,
@@ -103,6 +106,19 @@ func NewDefaultImageInspector(opts iicmd.ImageInspectorOptions) ImageInspector {
 
 // Inspect inspects and serves the image based on the ImageInspectorOptions.
 func (i *defaultImageInspector) Inspect() error {
+	var (
+		scanner iiapi.Scanner
+		err     error
+
+		scanReport, htmlScanReport []byte
+	)
+
+	scanResults := iiapi.ScanResult{
+		APIVersion: iiapi.DefaultResultsAPIVersion,
+		ImageName:  i.opts.Image,
+		Results:    []iiapi.Result{},
+	}
+
 	client, err := docker.NewClient(i.opts.URI)
 	if err != nil {
 		return fmt.Errorf("Unable to connect to docker daemon: %v\n", err)
@@ -122,34 +138,43 @@ func (i *defaultImageInspector) Inspect() error {
 		return err
 	}
 	i.meta.Image = *imageMetadata
+	scanResults.ImageID = i.meta.Image.ID
 
-	scanResults := iiapi.ScanResult{
-		APIVersion: iiapi.APIVersion,
-		ImageName:  i.opts.Image,
-		ImageID:    i.meta.Image.ID,
-		Results:    []iiapi.Result{},
-	}
-
-	var scanReport []byte
-	var htmlScanReport []byte
-	if i.opts.ScanType == "openscap" {
+	switch i.opts.ScanType {
+	case "openscap":
 		if i.opts.ScanResultsDir, err = createOutputDir(i.opts.ScanResultsDir, "image-inspector-scan-results-"); err != nil {
 			return err
 		}
-		scanner := openscap.NewDefaultScanner(OSCAP_CVE_DIR, i.opts.ScanResultsDir, i.opts.CVEUrlPath, i.opts.OpenScapHTML)
-		scanReport, htmlScanReport, err = i.scanImage(scanner)
+		var (
+			results   []iiapi.Result
+			reportObj interface{}
+		)
+		scanner = openscap.NewDefaultScanner(OSCAP_CVE_DIR, i.opts.ScanResultsDir, i.opts.CVEUrlPath, i.opts.OpenScapHTML)
+		results, reportObj, err = scanner.Scan(i.opts.DstPath, &i.meta.Image)
 		if err != nil {
 			i.meta.OpenSCAP.SetError(err)
-			log.Printf("Unable to scan image: %v", err)
+			log.Printf("DEBUG: Unable to scan image %q with OpenSCAP: %v", i.opts.Image, err)
 		} else {
 			i.meta.OpenSCAP.Status = iiapi.StatusSuccess
 		}
-		scanResults.Results = append(scanResults.Results, openscap.ParseResults(scanReport)...)
-	}
 
-	if i.imageServer != nil {
-		return i.imageServer.ServeImage(&i.meta,
-			scanReport, htmlScanReport)
+		report := reportObj.(openscap.OpenSCAPReport)
+		scanReport = report.ArfBytes
+		htmlScanReport = report.HTMLBytes
+
+		scanResults.Results = append(scanResults.Results, results...)
+
+	case "clamav":
+		scanner = clamav.NewScanner(i.opts.ClamSocket)
+		results, _, err := scanner.Scan(i.opts.DstPath, &i.meta.Image)
+		if err != nil {
+			log.Printf("DEBUG: Unable to scan image %q with ClamAV: %v", i.opts.Image, err)
+			return err
+		}
+		scanResults.Results = append(scanResults.Results, results...)
+
+	default:
+		return fmt.Errorf("unsupported scan type: %s", i.opts.ScanType)
 	}
 
 	if len(i.opts.PostResultURL) > 0 {
@@ -158,6 +183,11 @@ func (i *defaultImageInspector) Inspect() error {
 			return nil
 		}
 	}
+
+	if i.imageServer != nil {
+		return i.imageServer.ServeImage(&i.meta, scanResults, scanReport, htmlScanReport)
+	}
+
 	return nil
 }
 
@@ -167,7 +197,7 @@ func (i *defaultImageInspector) postTokenContent() string {
 	}
 	token, err := ioutil.ReadFile(i.opts.PostResultTokenFile)
 	if err != nil {
-		log.Printf("ERROR: Unable to read the %q token file: %v", i.opts.PostResultTokenFile, err)
+		log.Printf("WARNING: Unable to read the %q token file: %v (no token will be used)", i.opts.PostResultTokenFile, err)
 		return ""
 	}
 	return fmt.Sprintf("?token=%s", strings.TrimSpace(string(token)))
@@ -478,8 +508,7 @@ func appendDockerCfgConfigs(dockercfg string, cfgs *docker.AuthConfigurations) e
 }
 
 func (i *defaultImageInspector) getAuthConfigs() (*docker.AuthConfigurations, error) {
-	imagePullAuths := &docker.AuthConfigurations{
-		map[string]docker.AuthConfiguration{"Default Empty Authentication": {}}}
+	imagePullAuths := &docker.AuthConfigurations{Configs: map[string]docker.AuthConfiguration{"Default Empty Authentication": {}}}
 	if len(i.opts.DockerCfg.Values) > 0 {
 		for _, dcfgFile := range i.opts.DockerCfg.Values {
 			if err := appendDockerCfgConfigs(dcfgFile, imagePullAuths); err != nil {
@@ -493,34 +522,10 @@ func (i *defaultImageInspector) getAuthConfigs() (*docker.AuthConfigurations, er
 		if err != nil {
 			return nil, fmt.Errorf("Unable to read password file: %v\n", err)
 		}
-		imagePullAuths = &docker.AuthConfigurations{
-			map[string]docker.AuthConfiguration{"": {Username: i.opts.Username, Password: string(token)}}}
+		imagePullAuths = &docker.AuthConfigurations{Configs: map[string]docker.AuthConfiguration{"": {Username: i.opts.Username, Password: string(token)}}}
 	}
 
 	return imagePullAuths, nil
-}
-
-func (i *defaultImageInspector) scanImage(s iiapi.Scanner) ([]byte, []byte, error) {
-	log.Printf("%s scanning %s. Placing results in %s",
-		s.ScannerName(), i.opts.DstPath, i.opts.ScanResultsDir)
-	var htmlScanReport []byte
-	err := s.Scan(i.opts.DstPath, &i.meta.Image)
-	if err != nil {
-		return []byte(""), []byte(""), fmt.Errorf("Unable to run %s: %v\n", s.ScannerName(), err)
-	}
-	scanReport, err := ioutil.ReadFile(s.ResultsFileName())
-	if err != nil {
-		return []byte(""), []byte(""), fmt.Errorf("Unable to read %s result file: %v\n", s.ScannerName(), err)
-	}
-
-	if i.opts.OpenScapHTML {
-		htmlScanReport, err = ioutil.ReadFile(s.HTMLResultsFileName())
-		if err != nil {
-			return []byte(""), []byte(""), fmt.Errorf("Unable to read %s HTML result file: %v\n", s.ScannerName(), err)
-		}
-	}
-
-	return scanReport, htmlScanReport, nil
 }
 
 func createOutputDir(dirName string, tempName string) (string, error) {

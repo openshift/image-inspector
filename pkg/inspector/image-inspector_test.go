@@ -19,88 +19,37 @@ type SuccMockScanner struct {
 type NoResMockScanner struct {
 	SuccMockScanner
 }
-type SuccWithHTMLMockScanner struct {
+type SuccWithReportMockScanner struct {
 	SuccMockScanner
 }
 
-func (ms *FailMockScanner) Scan(string, *docker.Image) error {
-	return fmt.Errorf("FAIL SCANNER!")
+func (ms *FailMockScanner) Scan(string, *docker.Image) ([]iiapi.Result, interface{}, error) {
+	return nil, nil, fmt.Errorf("FAIL SCANNER!")
 }
-func (ms *FailMockScanner) ScannerName() string {
+func (ms *FailMockScanner) Name() string {
 	return "MockScanner"
 }
-func (ms *FailMockScanner) ResultsFileName() string {
-	return "image-inspector_test.go"
-}
-func (ms *FailMockScanner) HTMLResultsFileName() string {
-	return "NoSuchFile"
-}
-
-func (ms *SuccWithHTMLMockScanner) HTMLResultsFileName() string {
-	return "image-inpector_test.go"
-}
-
-func (ms *SuccMockScanner) Scan(string, *docker.Image) error {
-	return nil
-}
-
-func (ms *NoResMockScanner) ResultsFileName() string {
-	return "NoSuchFILE"
+func (ms *SuccMockScanner) Scan(string, *docker.Image) ([]iiapi.Result, interface{}, error) {
+	return []iiapi.Result{}, nil, nil
 }
 
 func TestScanImage(t *testing.T) {
-	iiWithHtml := defaultImageInspector{}
-	iiWithHtml.opts.OpenScapHTML = true
-
 	for k, v := range map[string]struct {
 		ii         defaultImageInspector
 		s          iiapi.Scanner
 		shouldFail bool
 	}{
-		"Scanner fails on scan":       {ii: defaultImageInspector{}, s: &FailMockScanner{}, shouldFail: true},
-		"Results file does not exist": {ii: defaultImageInspector{}, s: &NoResMockScanner{}, shouldFail: true},
-		"Happy Flow":                  {ii: defaultImageInspector{}, s: &SuccMockScanner{}, shouldFail: false},
-		"can't read html report":      {ii: iiWithHtml, s: &SuccMockScanner{}, shouldFail: true},
-		"Happy Flow with html":        {ii: iiWithHtml, s: &SuccWithHTMLMockScanner{}, shouldFail: true},
+		"Scanner fails on scan": {ii: defaultImageInspector{}, s: &FailMockScanner{}, shouldFail: true},
+		"Happy Flow":            {ii: defaultImageInspector{}, s: &SuccMockScanner{}, shouldFail: false},
 	} {
 		v.ii.opts.DstPath = "here"
-		ii := &v.ii
-		report, htmlReport, err := ii.scanImage(v.s)
+		_, _, err := v.s.Scan(v.ii.opts.DstPath, nil)
 		if v.shouldFail && err == nil {
 			t.Errorf("%s should have failed but it didn't!", k)
 		}
 		if !v.shouldFail {
 			if err != nil {
 				t.Errorf("%s should have succeeded but failed with %v", k, err)
-			} else {
-				resultFileContent, err := ioutil.ReadFile(v.s.ResultsFileName())
-				if err != nil {
-					t.Errorf("%s should have been able to read the"+
-						"results file but failed with: %v", k, err)
-				}
-				if string(resultFileContent) != string(report) {
-					t.Errorf("%s The report on disk did not match the "+
-						"report from the scanImage: %v", k, err)
-					t.Errorf("%s -- The result string read from the "+
-						"file is %d characters long.", k, len(resultFileContent))
-					t.Errorf("%s -- The result string as read via the "+
-						"scan is %d characters long.", k, len(report))
-				}
-				if ii.opts.OpenScapHTML {
-					htmlResultFileContent, err := ioutil.ReadFile(v.s.HTMLResultsFileName())
-					if err != nil {
-						t.Errorf("%s should have been able to read the"+
-							"HTML results file but failed with: %v", k, err)
-					}
-					if string(htmlResultFileContent) != string(htmlReport) {
-						t.Errorf("%s The HTML report on disk did not match the "+
-							"report from the scanImage: %v", k, err)
-						t.Errorf("%s -- The result string read from the "+
-							"file is %d characters long.", k, len(htmlResultFileContent))
-						t.Errorf("%s -- The result string as read via the "+
-							"scan is %d characters long.", k, len(htmlReport))
-					}
-				}
 			}
 		}
 	}
