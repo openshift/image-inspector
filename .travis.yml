@@ -5,11 +5,13 @@ go:
   - 1.7
 
 install:
-  - export PATH=$GOPATH/bin:./_tools/etcd/bin:$PATH
-  - make install-travis
+  - ./.travis.sh build
+
+services:
+  - docker
 
 script:
-  - make verify test-unit
+  - ./.travis.sh run
 
 notifications:
   irc: "chat.freenode.net#openshift-dev"
