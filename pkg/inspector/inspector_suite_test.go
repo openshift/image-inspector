@@ -1,5 +1,3 @@
-// +build integrationtest
-
 package inspector_test
 
 import (
