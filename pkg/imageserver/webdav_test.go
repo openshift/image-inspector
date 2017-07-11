@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
+	docker "github.com/fsouza/go-dockerclient"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/openshift/image-inspector/pkg/api"
@@ -38,7 +39,12 @@ var _ = Describe("Webdav", func() {
 			Results:    []api.Result{},
 		}
 		dummyMetadata = &api.InspectorMetadata{
-			OpenSCAP: &api.OpenSCAPMetadata{},
+			Image: docker.Image{
+				ID: "dummy",
+			},
+			OpenSCAP: &api.OpenSCAPMetadata{
+				Status: api.StatusSuccess,
+			},
 		}
 		dummyScanReport     = []byte("this is a dummy scan report")
 		dummyHTMLScanReport = []byte("this is a dummy HTML scan report")
@@ -126,7 +132,8 @@ var _ = Describe("Webdav", func() {
 				var metadata api.InspectorMetadata
 				err = json.Unmarshal(body, &metadata)
 				Expect(err).NotTo(HaveOccurred())
-				Expect(metadata).To(Equal(*dummyMetadata))
+				Expect(metadata.ID).To(Equal(dummyMetadata.ID))
+				Expect(metadata.OpenSCAP.Status).To(Equal(dummyMetadata.OpenSCAP.Status))
 			})
 		})
 

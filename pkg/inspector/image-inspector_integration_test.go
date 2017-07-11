@@ -2,16 +2,17 @@ package inspector_test
 
 import (
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"os"
+	"strings"
+	"time"
+
 	"github.com/fsouza/go-dockerclient"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	iicmd "github.com/openshift/image-inspector/pkg/cmd"
 	. "github.com/openshift/image-inspector/pkg/inspector"
-	"net/http"
-	"strings"
-	"time"
-	"io/ioutil"
-	"os"
 )
 
 var _ = Describe("ImageInspector", func() {
@@ -37,7 +38,7 @@ var _ = Describe("ImageInspector", func() {
 		opts.DstPath, err = ioutil.TempDir("", "")
 		Expect(err).NotTo(HaveOccurred())
 
-			ii = NewDefaultImageInspector(*opts)
+		ii = NewDefaultImageInspector(*opts)
 		//serving blocks, so it needs to be done in a goroutine
 		go func() {
 			if err := ii.Inspect(); err != nil {
@@ -48,8 +49,8 @@ var _ = Describe("ImageInspector", func() {
 		if err := waitForImage(opts.URI, opts.Image, time.Minute*5); err != nil {
 			panic(err)
 		}
-		//allow 30s to start serving http
-		if err := waitForServer(opts.Serve, time.Second*30); err != nil {
+		//allow 40s to start serving http
+		if err := waitForServer(opts.Serve, time.Second*40); err != nil {
 			panic(err)
 		}
 	})

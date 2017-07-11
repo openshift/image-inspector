@@ -2,7 +2,6 @@ package imageserver
 
 import (
 	iiapi "github.com/openshift/image-inspector/pkg/api"
-	"net/http"
 )
 
 // ImageServer abstracts the serving of image information.
