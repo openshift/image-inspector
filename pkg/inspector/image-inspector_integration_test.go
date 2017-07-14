@@ -1,18 +1,18 @@
-// +build integrationtest
-
 package inspector_test
 
 import (
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"os"
+	"strings"
+	"time"
+
 	"github.com/fsouza/go-dockerclient"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	iicmd "github.com/openshift/image-inspector/pkg/cmd"
-	"github.com/openshift/image-inspector/pkg/imageserver"
 	. "github.com/openshift/image-inspector/pkg/inspector"
-	"net/http"
-	"strings"
-	"time"
 )
 
 var _ = Describe("ImageInspector", func() {
@@ -26,35 +26,38 @@ var _ = Describe("ImageInspector", func() {
 			Timeout: time.Minute,
 		}
 	)
-	JustBeforeEach(func() {
+	//note: no expects in this block
+	//we just begin the http server here
+	BeforeSuite(func() {
+		var err error
 		opts = iicmd.NewDefaultImageInspectorOptions()
 		opts.Serve = serve
 		opts.AuthToken = validToken
-		opts.Image = "fedora:22"
+		opts.Image = "registry.access.redhat.com/rhel7:latest"
 		opts.ScanType = "openscap"
+		opts.DstPath, err = ioutil.TempDir("", "")
+		Expect(err).NotTo(HaveOccurred())
 
 		ii = NewDefaultImageInspector(*opts)
-
+		//serving blocks, so it needs to be done in a goroutine
+		go func() {
+			if err := ii.Inspect(); err != nil {
+				panic(err)
+			}
+		}()
+		//allow 5 minutes to pull image
+		if err := waitForImage(opts.URI, opts.Image, time.Minute*5); err != nil {
+			panic(err)
+		}
+		//allow 40s to start serving http
+		if err := waitForServer(opts.Serve, time.Second*40); err != nil {
+			panic(err)
+		}
+	})
+	AfterSuite(func() {
+		os.RemoveAll(opts.DstPath)
 	})
 	Describe(".Inspect()", func() {
-		//note: no expects in this block
-		//we just begin the http server here
-		It("starts running witouth error", func() {
-			//serving blocks, so it needs to be done in a goroutine
-			go func() {
-				if err := ii.Inspect(); err != nil {
-					panic(err)
-				}
-			}()
-			//allow 3 minutes to pull image
-			if err := waitForImage(opts.URI, opts.Image, time.Minute*3); err != nil {
-				panic(err)
-			}
-			//allow 30s to start serving http
-			if err := waitForServer(opts.Serve, time.Second*30); err != nil {
-				panic(err)
-			}
-		})
 
 		paths := []string{
 			//HEALTHZ_URL_PATH,
@@ -76,7 +79,7 @@ var _ = Describe("ImageInspector", func() {
 				})
 				Context("with incorrect authentication token", func() {
 					BeforeEach(func() {
-						req.Header.Set(imageserver.AUTH_TOKEN_HEADER, invalidToken)
+						req.Header.Set("X-Auth-Token", invalidToken)
 					})
 					It("should fail with status http.Status BadRequest", func() {
 						res, err := client.Do(req)
@@ -86,7 +89,7 @@ var _ = Describe("ImageInspector", func() {
 				})
 				Context("with correct authentication token", func() {
 					BeforeEach(func() {
-						req.Header.Set(imageserver.AUTH_TOKEN_HEADER, validToken)
+						req.Header.Set("X-Auth-Token", validToken)
 					})
 					It("should authorize the request", func() {
 						res, err := client.Do(req)

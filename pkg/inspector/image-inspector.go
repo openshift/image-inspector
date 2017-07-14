@@ -97,8 +97,9 @@ func NewDefaultImageInspector(opts iicmd.ImageInspectorOptions) ImageInspector {
 			HTMLScanReport:    opts.OpenScapHTML,
 			HTMLScanReportURL: OPENSCAP_REPORT_URL_PATH,
 			AuthToken:         opts.AuthToken,
+			Chroot:            opts.Chroot,
 		}
-		inspector.imageServer = apiserver.NewWebdavImageServer(imageServerOpts, opts.Chroot)
+		inspector.imageServer = apiserver.NewWebdavImageServer(imageServerOpts)
 	}
 	return inspector
 }
@@ -321,7 +322,7 @@ func (i *defaultImageInspector) pullImage(client *docker.Client) error {
 	}
 
 	// Try all the possible auth's from the config file
-	var authErr error
+	var err error
 	for name, auth := range imagePullAuths.Configs {
 		parsedErrors := make(chan error, 100)
 		defer func() { close(parsedErrors) }()
@@ -337,7 +338,7 @@ func (i *defaultImageInspector) pullImage(client *docker.Client) error {
 			}
 			go decodeDockerResponse(parsedErrors, reader)
 
-			if err := client.PullImage(imagePullOption, auth); err != nil {
+			if err = client.PullImage(imagePullOption, auth); err != nil {
 				parsedErrors <- err
 			}
 		}()
@@ -348,7 +349,7 @@ func (i *defaultImageInspector) pullImage(client *docker.Client) error {
 			return nil
 		}
 	}
-	return fmt.Errorf("Unable to pull docker image: %v\n", authErr)
+	return fmt.Errorf("Unable to pull docker image: %v\n", err)
 }
 
 // createAndExtractImage creates a docker container based on the option's image with containerName.

@@ -1,4 +1,4 @@
-package inspector_test
+package imageserver_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestInspector(t *testing.T) {
+func TestImageserver(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Inspector Suite")
+	RunSpecs(t, "Imageserver Suite")
 }
