@@ -58,7 +58,7 @@ var _ = Describe("Webdav", func() {
 			APIVersions:       apiVersions,
 			MetadataURL:       metadataPath,
 			ContentURL:        contentPath,
-			ScanType:          scanType,
+			ScanTypes:         []string{scanType},
 			ScanReportURL:     openscapReportPath,
 			HTMLScanReport:    true,
 			HTMLScanReportURL: openScapHTMLReportPath,

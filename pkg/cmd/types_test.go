@@ -26,13 +26,13 @@ func TestValidate(t *testing.T) {
 	goodConfigUsername.Image = "image"
 	goodConfigUsername.Username = "username"
 	goodConfigUsername.PasswordFile = "types.go"
-	goodConfigUsername.ScanType = "clamav"
+	goodConfigUsername.ScanTypes = MultiStringVar{"clamav"}
 	goodConfigUsername.ClamSocket = "clamav"
 
 	goodConfigWithDockerCfg := NewDefaultImageInspectorOptions()
 	goodConfigWithDockerCfg.Image = "image"
 	goodConfigWithDockerCfg.DockerCfg.Set("types.go")
-	goodConfigWithDockerCfg.ScanType = "openscap"
+	goodConfigWithDockerCfg.ScanTypes = MultiStringVar{"openscap"}
 
 	noScanTypeAndDir := NewDefaultImageInspectorOptions()
 	noScanTypeAndDir.Image = "image"
@@ -40,18 +40,18 @@ func TestValidate(t *testing.T) {
 
 	goodScanOptions := NewDefaultImageInspectorOptions()
 	goodScanOptions.Image = "image"
-	goodScanOptions.ScanType = "openscap"
+	goodScanOptions.ScanTypes = MultiStringVar{"openscap"}
 	goodScanOptions.ScanResultsDir = "."
 	goodScanOptions.OpenScapHTML = true
 
 	notADirResScan := NewDefaultImageInspectorOptions()
 	notADirResScan.Image = "image"
-	notADirResScan.ScanType = "openscap"
+	notADirResScan.ScanTypes = MultiStringVar{"openscap"}
 	notADirResScan.ScanResultsDir = "types_test.go"
 
 	noSuchScanType := NewDefaultImageInspectorOptions()
 	noSuchScanType.Image = "image"
-	noSuchScanType.ScanType = "nosuchscantype"
+	noSuchScanType.ScanTypes = MultiStringVar{"nosuchscantype"}
 	noSuchScanType.ScanResultsDir = "."
 
 	noSuchFileDockercfg := NewDefaultImageInspectorOptions()
@@ -65,7 +65,7 @@ func TestValidate(t *testing.T) {
 	badScanOptionsHTMLWrongScan := NewDefaultImageInspectorOptions()
 	badScanOptionsHTMLWrongScan.Image = "image"
 	badScanOptionsHTMLWrongScan.OpenScapHTML = true
-	badScanOptionsHTMLWrongScan.ScanType = "nosuchscantype"
+	badScanOptionsHTMLWrongScan.ScanTypes = MultiStringVar{"nosuchscantype"}
 
 	noSuchPullPolicy := NewDefaultImageInspectorOptions()
 	noSuchPullPolicy.Image = "image"
@@ -110,7 +110,7 @@ func TestValidate(t *testing.T) {
 
 	// for 100% coverage we need to test MultiStringVar::String
 	goodConfigWithDockerCfg.DockerCfg.Set("types_test.go")
-	if len(goodConfigWithDockerCfg.DockerCfg.Values) != 2 {
+	if len(goodConfigWithDockerCfg.DockerCfg) != 2 {
 		t.Errorf("MultiStringVar Set didn't add to the lenght of Values")
 	}
 	st := goodConfigWithDockerCfg.DockerCfg.String()

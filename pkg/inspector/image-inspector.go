@@ -98,7 +98,7 @@ func NewDefaultImageInspector(opts iicmd.ImageInspectorOptions) ImageInspector {
 			APIVersions:       iiapi.APIVersions{Versions: []string{VERSION_TAG}},
 			MetadataURL:       METADATA_URL_PATH,
 			ContentURL:        CONTENT_URL_PREFIX,
-			ScanType:          opts.ScanType,
+			ScanTypes:          opts.ScanTypes,
 			ScanReportURL:     OPENSCAP_URL_PATH,
 			HTMLScanReport:    opts.OpenScapHTML,
 			HTMLScanReportURL: OPENSCAP_REPORT_URL_PATH,
@@ -204,42 +204,44 @@ func (i *defaultImageInspector) Inspect() error {
 		}
 	}
 
-	switch i.opts.ScanType {
-	case "openscap":
-		if i.opts.ScanResultsDir, err = createOutputDir(i.opts.ScanResultsDir, "image-inspector-scan-results-"); err != nil {
-			return err
-		}
-		var (
-			results   []iiapi.Result
-			reportObj interface{}
-		)
-		scanner = openscap.NewDefaultScanner(OSCAP_CVE_DIR, i.opts.ScanResultsDir, i.opts.CVEUrlPath, i.opts.OpenScapHTML)
-		results, reportObj, err = scanner.Scan(ctx, i.opts.DstPath, &i.meta.Image, filterFn)
-		if err != nil {
-			i.meta.OpenSCAP.SetError(err)
-			log.Printf("DEBUG: Unable to scan image %q with OpenSCAP: %v", i.opts.Image, err)
-		} else {
-			i.meta.OpenSCAP.Status = iiapi.StatusSuccess
-			report := reportObj.(openscap.OpenSCAPReport)
-			scanReport = report.ArfBytes
-			htmlScanReport = report.HTMLBytes
+	for _, scanType := range i.opts.ScanTypes {
+		switch scanType {
+		case "openscap":
+			if i.opts.ScanResultsDir, err = createOutputDir(i.opts.ScanResultsDir, "image-inspector-scan-results-"); err != nil {
+				return err
+			}
+			var (
+				results   []iiapi.Result
+				reportObj interface{}
+			)
+			scanner = openscap.NewDefaultScanner(OSCAP_CVE_DIR, i.opts.ScanResultsDir, i.opts.CVEUrlPath, i.opts.OpenScapHTML)
+			results, reportObj, err = scanner.Scan(ctx, i.opts.DstPath, &i.meta.Image, filterFn)
+			if err != nil {
+				i.meta.OpenSCAP.SetError(err)
+				log.Printf("DEBUG: Unable to scan image %q with OpenSCAP: %v", i.opts.Image, err)
+			} else {
+				i.meta.OpenSCAP.Status = iiapi.StatusSuccess
+				report := reportObj.(openscap.OpenSCAPReport)
+				scanReport = report.ArfBytes
+				htmlScanReport = report.HTMLBytes
+				scanResults.Results = append(scanResults.Results, results...)
+			}
+
+		case "clamav":
+			scanner, err = clamav.NewScanner(i.opts.ClamSocket)
+			if err != nil {
+				return fmt.Errorf("failed to initialize clamav scanner: %v", err)
+			}
+			results, _, err := scanner.Scan(ctx, i.opts.DstPath, &i.meta.Image, filterFn)
+			if err != nil {
+				log.Printf("DEBUG: Unable to scan image %q with ClamAV: %v", i.opts.Image, err)
+				return err
+			}
 			scanResults.Results = append(scanResults.Results, results...)
-		}
 
-	case "clamav":
-		scanner, err = clamav.NewScanner(i.opts.ClamSocket)
-		if err != nil {
-			return fmt.Errorf("failed to initialize clamav scanner: %v", err)
+		default:
+			return fmt.Errorf("unsupported scan type: %s", scanType)
 		}
-		results, _, err := scanner.Scan(ctx, i.opts.DstPath, &i.meta.Image, filterFn)
-		if err != nil {
-			log.Printf("DEBUG: Unable to scan image %q with ClamAV: %v", i.opts.Image, err)
-			return err
-		}
-		scanResults.Results = append(scanResults.Results, results...)
-
-	default:
-		return fmt.Errorf("unsupported scan type: %s", i.opts.ScanType)
 	}
 
 	if len(i.opts.PostResultURL) > 0 {
@@ -612,8 +614,8 @@ func appendDockerCfgConfigs(dockercfg string, cfgs *docker.AuthConfigurations) e
 
 func (i *defaultImageInspector) getAuthConfigs() (*docker.AuthConfigurations, error) {
 	imagePullAuths := &docker.AuthConfigurations{Configs: map[string]docker.AuthConfiguration{"Default Empty Authentication": {}}}
-	if len(i.opts.DockerCfg.Values) > 0 {
-		for _, dcfgFile := range i.opts.DockerCfg.Values {
+	if len(i.opts.DockerCfg) > 0 {
+		for _, dcfgFile := range i.opts.DockerCfg {
 			if err := appendDockerCfgConfigs(dcfgFile, imagePullAuths); err != nil {
 				log.Printf("WARNING: Unable to read docker configuration from %s. Error: %v", dcfgFile, err)
 			}

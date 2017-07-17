@@ -22,3 +22,13 @@ func StringInList(s string, l []string) bool {
 	}
 	return false
 }
+
+func Unique(a []string) []string {
+	b := []string{}
+	for _, v := range a {
+		if !StringInList(v, b) {
+			b = append(b, v)
+		}
+	}
+	return b
+}

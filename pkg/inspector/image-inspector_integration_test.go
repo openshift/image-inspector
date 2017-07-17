@@ -34,7 +34,7 @@ var _ = Describe("ImageInspector", func() {
 		opts.Serve = serve
 		opts.AuthToken = validToken
 		opts.Image = "registry.access.redhat.com/rhel7:latest"
-		opts.ScanType = "openscap"
+		opts.ScanTypes = iicmd.MultiStringVar{"openscap"}
 		opts.DstPath, err = ioutil.TempDir("", "")
 		Expect(err).NotTo(HaveOccurred())
 

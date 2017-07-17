@@ -61,7 +61,7 @@ func TestGetAuthConfigs(t *testing.T) {
 	goodNoAuth := iicmd.NewDefaultImageInspectorOptions()
 
 	goodTwoDockerCfg := iicmd.NewDefaultImageInspectorOptions()
-	goodTwoDockerCfg.DockerCfg.Values = []string{"test/dockercfg1", "test/dockercfg2"}
+	goodTwoDockerCfg.DockerCfg = iicmd.MultiStringVar{"test/dockercfg1", "test/dockercfg2"}
 
 	goodUserAndPass := iicmd.NewDefaultImageInspectorOptions()
 	goodUserAndPass.Username = "erez"
@@ -72,13 +72,13 @@ func TestGetAuthConfigs(t *testing.T) {
 	badUserAndPass.PasswordFile = "test/nosuchfile"
 
 	badDockerCfgMissing := iicmd.NewDefaultImageInspectorOptions()
-	badDockerCfgMissing.DockerCfg.Values = []string{"test/dockercfg1", "test/nosuchfile"}
+	badDockerCfgMissing.DockerCfg = iicmd.MultiStringVar{"test/dockercfg1", "test/nosuchfile"}
 
 	badDockerCfgWrong := iicmd.NewDefaultImageInspectorOptions()
-	badDockerCfgWrong.DockerCfg.Values = []string{"test/dockercfg1", "test/passwordFile1"}
+	badDockerCfgWrong.DockerCfg = iicmd.MultiStringVar{"test/dockercfg1", "test/passwordFile1"}
 
 	badDockerCfgNoAuth := iicmd.NewDefaultImageInspectorOptions()
-	badDockerCfgNoAuth.DockerCfg.Values = []string{"test/dockercfg1", "test/dockercfg3"}
+	badDockerCfgNoAuth.DockerCfg = iicmd.MultiStringVar{"test/dockercfg1", "test/dockercfg3"}
 
 	tests := map[string]struct {
 		opts          *iicmd.ImageInspectorOptions

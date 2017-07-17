@@ -33,7 +33,7 @@ type ImageServerOptions struct {
 	// ContentURL is the relative url of the content.  ex /api/v1/content/
 	ContentURL string
 	// ScanType is the type of the scan that was done on the inspected image
-	ScanType string
+	ScanTypes []string
 	// ScanReportURL is the url to publish the scan report
 	ScanReportURL string
 	// HTMLScanReport wether or not to publish an HTML scan report

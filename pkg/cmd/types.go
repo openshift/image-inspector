@@ -15,17 +15,15 @@ import (
 const DefaultDockerSocketLocation = "unix:///var/run/docker.sock"
 
 // MultiStringVar is implementing flag.Value
-type MultiStringVar struct {
-	Values []string
-}
+type MultiStringVar []string
 
 func (sv *MultiStringVar) Set(s string) error {
-	sv.Values = append(sv.Values, s)
+	*sv = append(*sv, s)
 	return nil
 }
 
 func (sv *MultiStringVar) String() string {
-	return fmt.Sprintf("%v", sv.Values)
+	return fmt.Sprintf("%v", *sv)
 }
 
 // ImageInspectorOptions is the main inspector implementation and holds the configuration
@@ -52,8 +50,8 @@ type ImageInspectorOptions struct {
 	// PasswordFile is the location of the file containing the password for authentication to the
 	// docker registry.
 	PasswordFile string
-	// ScanType is the type of the scan to be done on the inspected image
-	ScanType string
+	// ScanTypes are the types of scans to be done on the inspected image
+	ScanTypes MultiStringVar
 	// ScanResultsDir is the directory that will contain the results of the scan
 	ScanResultsDir string
 	// OpenScapHTML controls whether or not to generate an HTML report
@@ -84,7 +82,8 @@ type ImageInspectorOptions struct {
 func NewDefaultImageInspectorOptions() *ImageInspectorOptions {
 	return &ImageInspectorOptions{
 		URI:        DefaultDockerSocketLocation,
-		DockerCfg:  MultiStringVar{[]string{}},
+		DockerCfg:  MultiStringVar{},
+		ScanTypes:  MultiStringVar{},
 		CVEUrlPath: oscapscanner.CVEUrl,
 		PullPolicy: iiapi.PullIfNotPresent,
 	}
@@ -104,7 +103,7 @@ func (i *ImageInspectorOptions) Validate() error {
 	if i.ScanContainerChanges && len(i.Container) == 0 {
 		return fmt.Errorf("please specify docker container")
 	}
-	if len(i.DockerCfg.Values) > 0 && len(i.Username) > 0 {
+	if len(i.DockerCfg) > 0 && len(i.Username) > 0 {
 		return fmt.Errorf("only specify dockercfg file or username/password pair for authentication")
 	}
 	if len(i.Username) > 0 && len(i.PasswordFile) == 0 {
@@ -113,7 +112,7 @@ func (i *ImageInspectorOptions) Validate() error {
 	if len(i.Serve) == 0 && i.Chroot {
 		return fmt.Errorf("change root can be used only when serving the image through webdav")
 	}
-	if len(i.ScanResultsDir) > 0 && len(i.ScanType) == 0 {
+	if len(i.ScanResultsDir) > 0 && len(i.ScanTypes) == 0 {
 		return fmt.Errorf("scan-result-dir can be used only when spacifing scan-type")
 	}
 	if len(i.ScanResultsDir) > 0 {
@@ -125,30 +124,28 @@ func (i *ImageInspectorOptions) Validate() error {
 	if len(i.PostResultTokenFile) > 0 && len(i.PostResultURL) == 0 {
 		return fmt.Errorf("post-results-url must be set to use post-results-token-file")
 	}
-	if i.OpenScapHTML && (len(i.ScanType) == 0 || i.ScanType != "openscap") {
+	if i.OpenScapHTML && !util.StringInList("openscap", i.ScanTypes) {
 		return fmt.Errorf("openscap-html-report can be used only when specifying scan-type as \"openscap\"")
 	}
-	for _, fl := range append(i.DockerCfg.Values, i.PasswordFile) {
+	for _, fl := range append(i.DockerCfg, i.PasswordFile) {
 		if len(fl) > 0 {
 			if _, err := os.Stat(fl); os.IsNotExist(err) {
 				return fmt.Errorf("%s does not exist", fl)
 			}
 		}
 	}
-	if len(i.ScanType) > 0 {
-		if !util.StringInList(i.ScanType, iiapi.ScanOptions) {
-			return fmt.Errorf("%s is not one of the available scan-types which are %v",
-				i.ScanType, iiapi.ScanOptions)
-		}
-	}
-	if i.ScanType == "clamav" && len(i.ClamSocket) == 0 {
+	if util.StringInList("clamav", i.ScanTypes) && len(i.ClamSocket) == 0 {
 		return fmt.Errorf("clam-socket must be set to use clamav scan type")
 	}
 
-	// A valid scan-type must be specified.
-	if !util.StringInList(i.ScanType, iiapi.ScanOptions) {
-		return fmt.Errorf("%s is not one of the available scan-types which are %v",
-			i.ScanType, iiapi.ScanOptions)
+	// A scan-types must be valid.
+	if len(i.ScanTypes) > 0 {
+		for _, v := range i.ScanTypes {
+			if !util.StringInList(v, iiapi.ScanOptions) {
+				return fmt.Errorf("%s is not one of the available scan-types which are %v",
+					v, iiapi.ScanOptions)
+			}
+		}
 	}
 	if !util.StringInList(i.PullPolicy, iiapi.PullPolicyOptions) {
 		return fmt.Errorf("%s is not one of the available pull-policy options which are %v",

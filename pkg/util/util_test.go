@@ -30,3 +30,17 @@ func TestStringInList(t *testing.T) {
 		t.Errorf("Is not found in the list")
 	}
 }
+
+func TestUnique(t *testing.T) {
+	a := []string{"one", "two", "three", "three"}
+	actual := Unique(a)
+	expected := []string{"one", "two", "three"}
+	if len(actual) != len(expected) {
+		t.Errorf("expected %v to have len %v",  actual, len(expected))
+	}
+	for i := range actual {
+		if actual[i] != expected[i] {
+			t.Errorf("expected %v to equal %v", actual[i], expected[i])
+		}
+	}
+}
