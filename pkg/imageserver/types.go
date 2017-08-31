@@ -41,7 +41,6 @@ type ImageServerOptions struct {
 	// HTMLScanReportURL url for the scan html report
 	HTMLScanReportURL string
 	// AuthToken is a Shared Secret used to validate HTTP Requests.
-	// AuthToken is set through ENV rather than passed as a parameter
 	AuthToken string
 	// Chroot indicates whether image-inspector will execute a chroot
 	// to the root directory of the image before serving its contents
