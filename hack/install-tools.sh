@@ -10,5 +10,6 @@ echo "Detected go version: $(go version)"
 go get github.com/tools/godep
 go get github.com/onsi/ginkgo/ginkgo  # installs the ginkgo CLI
 go get github.com/onsi/gomega         # fetches the matcher library
+go get github.com/ilackarms/webdavclnt # required package for testing
 
 ret=$?; ENDTIME=$(date +%s); echo "$0 took $(($ENDTIME - $STARTTIME)) seconds"; exit "$ret"

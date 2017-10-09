@@ -2,6 +2,7 @@ package imageserver
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -9,7 +10,8 @@ import (
 	"os"
 	"path/filepath"
 
-	docker "github.com/fsouza/go-dockerclient"
+	"github.com/fsouza/go-dockerclient"
+	"github.com/ilackarms/webdavclnt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/openshift/image-inspector/pkg/api"
@@ -27,7 +29,7 @@ const (
 	authToken              = "12345"
 )
 
-var _ = Describe("Webdav", func() {
+var _ = Describe("ImageServer", func() {
 	var (
 		server           *httptest.Server
 		options          ImageServerOptions
@@ -187,21 +189,35 @@ var _ = Describe("Webdav", func() {
 				})
 			})
 		})
-		Describe("an HTTP GET of an expected file from "+contentPath, func() {
-			fileContents := "have a nice day"
+		Describe("webdav content serving", func() {
+			var files map[string]string
 			JustBeforeEach(func() {
-				tmpFile, err := ioutil.TempFile(dstPath, "")
+				var err error
+				files, err = addFiles(dstPath, 3)
 				Expect(err).NotTo(HaveOccurred())
-				_, err = tmpFile.WriteString(fileContents)
-				Expect(err).NotTo(HaveOccurred())
-				defer tmpFile.Close()
-				u.Path = contentPath + filepath.Base(tmpFile.Name())
 			})
-			It("should return status 200 and the contents of the file", func() {
-				status, body, err := getWithAuth(u, authToken)
-				Expect(err).NotTo(HaveOccurred())
-				Expect(status).To(Equal(http.StatusOK))
-				Expect(string(body)).To(Equal(fileContents))
+			Describe("an HTTP GET of an expected file from "+contentPath, func() {
+				It("should return status 200 and the contents of the file", func() {
+					for filename, contents := range files {
+						u.Path = contentPath + filepath.Base(filename)
+						status, body, err := getWithAuth(u, authToken)
+						Expect(err).NotTo(HaveOccurred())
+						Expect(status).To(Equal(http.StatusOK))
+						Expect(string(body)).To(Equal(contents))
+					}
+				})
+			})
+			Describe("list content root via webdav client", func() {
+				It("should list the contents of "+dstPath, func() {
+					client := webdavclnt.NewClient(u.Host).SetWrapRequest(func(req *http.Request) {
+						req.Header.Set(authTokenHeader, authToken)
+					})
+					prop, err := client.AllPropFind(contentPath)
+					Expect(err).NotTo(HaveOccurred())
+					for filename := range files {
+						Expect(prop).To(HaveKey(contentPath + filepath.Base(filename)))
+					}
+				})
 			})
 		})
 	})
@@ -223,4 +239,22 @@ func getWithAuth(u *url.URL, token string) (int, []byte, error) {
 	}
 	resp.Body.Close()
 	return resp.StatusCode, body, nil
+}
+
+func addFiles(dstPath string, quantity int) (map[string]string, error) {
+	fileContents := make(map[string]string)
+	for i := 0; i < quantity; i++ {
+		contents := fmt.Sprintf("i am file number %v", i)
+		tmpFile, err := ioutil.TempFile(dstPath, "")
+		if err != nil {
+			return nil, err
+		}
+		_, err = tmpFile.WriteString(contents)
+		if err != nil {
+			return nil, err
+		}
+		defer tmpFile.Close()
+		fileContents[tmpFile.Name()] = contents
+	}
+	return fileContents, nil
 }
