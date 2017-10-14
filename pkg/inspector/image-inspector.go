@@ -372,7 +372,7 @@ func (i *defaultImageInspector) getContainerMeta(client *docker.Client) (*contai
 
 	result.Image, err = client.InspectImage(result.Container.Image)
 	if err != nil {
-		return nil,fmt.Errorf("Unable to get docker image information: %v", err)
+		return nil, fmt.Errorf("Unable to get docker image information: %v", err)
 	}
 
 	return result, nil

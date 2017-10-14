@@ -3,8 +3,8 @@ package clamav
 import (
 	"testing"
 
-	"golang.org/x/net/context"
 	"github.com/openshift/clam-scanner/pkg/clamav"
+	"golang.org/x/net/context"
 )
 
 type fakeClamSession struct {

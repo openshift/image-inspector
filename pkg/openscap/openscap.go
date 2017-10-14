@@ -15,121 +15,147 @@ import (
 	"syscall"
 	"time"
 
-	docker "github.com/fsouza/go-dockerclient"
+	"github.com/fsouza/go-dockerclient"
 	iiapi "github.com/openshift/image-inspector/pkg/api"
-	"github.com/openshift/image-inspector/pkg/util"
-	xmldom "github.com/subchen/go-xmldom"
+	"github.com/subchen/go-xmldom"
 )
 
 const (
-	CPE             = "oval:org.open-scap.cpe.rhel:def:"
-	CPEDict         = "/usr/share/openscap/cpe/openscap-cpe-oval.xml"
-	CVEUrl          = "https://www.redhat.com/security/data/metrics/ds/"
-	DistCVENameFmt  = "com.redhat.rhsa-RHEL%d.ds.xml.bz2"
-	ArfResultFile   = "results-arf.xml"
-	HTMLResultFile  = "results.html"
-	TmpDir          = "/tmp"
-	Linux           = "Linux"
-	OpenSCAP        = "openscap"
-	ImageShortIDLen = 11
-	Unknown         = "Unknown"
-	LinuxVersionPH  = "Unknown"
-	OpenSCAPVersion = "1.2"
+	CVEUrl = "https://www.redhat.com/security/data/metrics/ds/"
 
-	CVEDetailsUrl = "https://cve.mitre.org/cgi-bin/cvename.cgi?name="
+	cpe             = "oval:org.open-scap.cpe.rhel:def:"
+	cpeDict         = "/usr/share/openscap/cpe/openscap-cpe-oval.xml"
+	distCVENameFmt  = "com.redhat.rhsa-RHEL%d.ds.xml.bz2"
+	arfResultFile   = "results-arf.xml"
+	htmlResultFile  = "results.html"
+	linux           = "Linux"
+	scannerName     = "openscap"
+	imageShortIDLen = 11
+	unknown         = "Unknown"
+	linuxVersionPH  = "Unknown"
+	openSCAPVersion = "1.2"
+	cveDetailsUrl   = "https://cve.mitre.org/cgi-bin/cvename.cgi?name="
 )
 
 var (
-	RHELDistNumbers = [...]int{5, 6, 7}
-	osSetEnv        = os.Setenv
+	distNotFoundErr = fmt.Errorf("could not find RHEL dist")
 )
 
-// rhelDistFunc provides an injectable way to get the rhel dist for testing.
-type rhelDistFunc func(context.Context) (int, error)
+var (
+	rhelDistNumbers = []int{5, 6, 7}
+)
 
-// inputCVEFunc provides an injectable way to get the cve file for testing.
-type inputCVEFunc func(int) (string, error)
-
-// chrootOscapFunc provides an injectable way to chroot and execute oscap for testing.
-type chrootOscapFunc func(context.Context, ...string) ([]byte, error)
-
-// setEnvFunc provides an injectable way to get the cve file for testing.
-type setEnvFunc func() error
-
-// OpenSCAPReport holds the both Arf and HTML versions of openscap report.
+// OpenSCAPReport holds the both Arf and outputHTML versions of openscap report.
 type OpenSCAPReport struct {
 	ArfBytes  []byte
 	HTMLBytes []byte
 }
 
 type defaultOSCAPScanner struct {
-	// CVEDir is the directory where the CVE file is saved
-	CVEDir string
-	// ResultsDir is the directory to which the arf report will be written
-	ResultsDir string
-	// CVEUrlAltPath An alternative source for the cve files
-	CVEUrlAltPath string
+	// resultsDir is the directory to which the arf report will be written
+	resultsDir string
+	// Whether or not to generate an outputHTML report
+	outputHTML bool
+	// cveDir is the directory where the CVE file is saved
+	cveDir string
+	// cveUrlAltPath An alternative source for the cve files
+	cveUrlAltPath string
 
-	// Image is the metadata of the inspected image
-	image *docker.Image
-	// ImageMountPath is the path where the image to be scanned is mounted
-	imageMountPath string
-
-	rhelDist    rhelDistFunc
-	inputCVE    inputCVEFunc
-	chrootOscap chrootOscapFunc
-	setEnv      setEnvFunc
-
-	// Whether or not to generate an HTML report
-	HTML bool
-
-	reports OpenSCAPReport
+	getRHELDistFunc       func(ctx context.Context, mountPath string, image *docker.Image) (int, error)
+	getInputCVEFunc       func(dist int, cveDir, cveUrlAltPath string) (string, error)
+	oscapCommandFunc      func(ctx context.Context, mountPath string, image *docker.Image, oscapArgs ...string) ([]byte, error)
+	setEnvFunc            func(key string, val string) error
+	setOscapChrootEnvFunc func(mountPath string, image *docker.Image) error
 }
-
-// ensure interface is implemented
-var _ iiapi.Scanner = &defaultOSCAPScanner{}
 
 // NewDefaultScanner returns a new OpenSCAP scanner
-func NewDefaultScanner(cveDir, resultsDir, CVEUrlAltPath string, html bool) iiapi.Scanner {
-	scanner := &defaultOSCAPScanner{
-		CVEDir:        cveDir,
-		ResultsDir:    resultsDir,
-		CVEUrlAltPath: CVEUrlAltPath,
-		HTML:          html,
+func NewDefaultScanner(cveDir, resultsDir, cveUrlAltPath string, outputHTML bool) iiapi.Scanner {
+	s := &defaultOSCAPScanner{
+		resultsDir:    resultsDir,
+		outputHTML:    outputHTML,
+		cveDir:        cveDir,
+		cveUrlAltPath: cveUrlAltPath,
 	}
+	s.getRHELDistFunc = s.getRHELDist
+	s.getInputCVEFunc = getInputCVE
+	s.oscapCommandFunc = s.oscapCommand
+	s.setEnvFunc = os.Setenv
+	s.setOscapChrootEnvFunc = setOscapChrootEnv
 
-	scanner.rhelDist = scanner.getRHELDist
-	scanner.inputCVE = scanner.getInputCVE
-	scanner.chrootOscap = scanner.oscapChroot
-	scanner.setEnv = scanner.setOscapChrootEnv
-	scanner.reports = OpenSCAPReport{}
-
-	return scanner
+	return s
 }
 
-func (s *defaultOSCAPScanner) getRHELDist(ctx context.Context) (int, error) {
-	for _, dist := range RHELDistNumbers {
-		output, err := s.chrootOscap(ctx, "oval", "eval", "--id",
-			fmt.Sprintf("%s%d", CPE, dist), CPEDict)
+func (s *defaultOSCAPScanner) Scan(ctx context.Context, mountPath string, image *docker.Image, filter iiapi.FilesFilter) ([]iiapi.Result, interface{}, error) {
+	if err := s.setOscapChrootEnvFunc(mountPath, image); err != nil {
+		return nil, nil, fmt.Errorf("unable to set oscap env: %v", err)
+	}
+
+	fi, err := os.Stat(mountPath)
+	if err != nil || os.IsNotExist(err) || !fi.IsDir() {
+		return nil, nil, fmt.Errorf("%s is not a directory, error: %v", mountPath, err)
+	}
+	if image == nil {
+		return nil, nil, fmt.Errorf("image cannot be nil")
+	}
+
+	rhelDist, err := s.getRHELDistFunc(ctx, mountPath, image)
+	if err != nil {
+		return nil, nil, fmt.Errorf("Unable to get RHEL distribution number: %v\n", err)
+	}
+
+	cveFileName, err := s.getInputCVEFunc(rhelDist, s.cveDir, s.cveUrlAltPath)
+	if err != nil {
+		return nil, nil, fmt.Errorf("Unable to retreive the CVE file: %v\n", err)
+	}
+
+	args := []string{"xccdf", "eval", "--results-arf", path.Join(s.resultsDir, arfResultFile)}
+
+	if s.outputHTML {
+		args = append(args, "--report", path.Join(s.resultsDir, htmlResultFile))
+	}
+	log.Printf("Writing OpenSCAP results to %s", s.resultsDir)
+
+	args = append(args, cveFileName)
+
+	if _, err = s.oscapCommandFunc(ctx, mountPath, image, args...); err != nil {
+		return nil, nil, err
+	}
+
+	arfBytes, htmlBytes, err := readOpenSCAPReports(s.resultsDir, s.outputHTML)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return parseResults(arfBytes), OpenSCAPReport{ArfBytes: arfBytes, HTMLBytes: htmlBytes}, nil
+}
+
+func (s *defaultOSCAPScanner) Name() string {
+	return scannerName
+}
+
+func (s *defaultOSCAPScanner) getRHELDist(ctx context.Context, mountPath string, image *docker.Image) (int, error) {
+	for _, dist := range rhelDistNumbers {
+		output, err := s.oscapCommandFunc(ctx, mountPath, image, "oval", "eval", "--id",
+			fmt.Sprintf("%s%d", cpe, dist), cpeDict)
 		if err != nil {
 			return 0, err
 		}
-		if strings.Contains(string(output), fmt.Sprintf("%s%d: true", CPE, dist)) {
+		if strings.Contains(string(output), fmt.Sprintf("%s%d: true", cpe, dist)) {
 			return dist, nil
 		}
 	}
-	return 0, fmt.Errorf("could not find RHEL dist")
+	return 0, distNotFoundErr
 }
 
-func (s *defaultOSCAPScanner) getInputCVE(dist int) (string, error) {
-	cveName := fmt.Sprintf(DistCVENameFmt, dist)
-	cveFileName := path.Join(s.CVEDir, cveName)
+func getInputCVE(dist int, cveDir, cveUrlAltPath string) (string, error) {
+	cveName := fmt.Sprintf(distCVENameFmt, dist)
+	cveFileName := path.Join(cveDir, cveName)
 	var err error
 	var cveURL *url.URL
-	if len(s.CVEUrlAltPath) > 0 {
-		if cveURL, err = url.Parse(s.CVEUrlAltPath); err != nil {
+	if len(cveUrlAltPath) > 0 {
+		if cveURL, err = url.Parse(cveUrlAltPath); err != nil {
 			return "", fmt.Errorf("Could not parse CVE URL %s: %v\n",
-				s.CVEUrlAltPath, err)
+				cveUrlAltPath, err)
 		}
 	} else {
 		cveURL, _ = url.Parse(CVEUrl)
@@ -152,30 +178,12 @@ func (s *defaultOSCAPScanner) getInputCVE(dist int) (string, error) {
 	return cveFileName, err
 }
 
-func (s *defaultOSCAPScanner) setOscapChrootEnv() error {
-	for k, v := range map[string]string{
-		"OSCAP_PROBE_ROOT":         s.imageMountPath,
-		"OSCAP_PROBE_OS_VERSION":   LinuxVersionPH, // FIXME place holder value
-		"OSCAP_PROBE_ARCHITECTURE": util.StrOrDefault(s.image.Architecture, Unknown),
-		"OSCAP_PROBE_OS_NAME":      Linux,
-		"OSCAP_PROBE_PRIMARY_HOST_NAME": fmt.Sprintf("docker-image-%s",
-			s.image.ID[:util.Min(ImageShortIDLen, len(s.image.ID))]),
-	} {
-		err := osSetEnv(k, v)
-		if err != nil {
-			return err
-		}
+// Wrapper function for executing oscapCommand
+func (s *defaultOSCAPScanner) oscapCommand(ctx context.Context, mountPath string, image *docker.Image, oscapArgs ...string) ([]byte, error) {
+	if err := s.setOscapChrootEnvFunc(mountPath, image); err != nil {
+		return nil, fmt.Errorf("unable to set oscap env: %v", err)
 	}
-	return nil
-}
-
-// Wrapper function for executing oscap
-func (s *defaultOSCAPScanner) oscapChroot(ctx context.Context, oscapArgs ...string) ([]byte, error) {
-	if err := s.setEnv(); err != nil {
-		return nil, fmt.Errorf("Unable to set env variables in oscapChroot: %v", err)
-	}
-	cmd := exec.CommandContext(ctx, "oscap", oscapArgs...)
-	out, err := cmd.CombinedOutput()
+	out, err := exec.CommandContext(ctx, "oscap", oscapArgs...).CombinedOutput()
 	if err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {
 			waitStatus := exitError.Sys().(syscall.WaitStatus)
@@ -191,75 +199,46 @@ func (s *defaultOSCAPScanner) oscapChroot(ctx context.Context, oscapArgs ...stri
 	return out, err
 }
 
-func (s *defaultOSCAPScanner) Scan(ctx context.Context, mountPath string, image *docker.Image, filter iiapi.FilesFilter) ([]iiapi.Result, interface{}, error) {
-	fi, err := os.Stat(mountPath)
-	if err != nil || os.IsNotExist(err) || !fi.IsDir() {
-		return nil, nil, fmt.Errorf("%s is not a directory, error: %v", mountPath, err)
+func setOscapChrootEnv(mountPath string, image *docker.Image) error {
+	imageArch := image.Architecture
+	if len(imageArch) == 0 {
+		imageArch = unknown
 	}
-	if image == nil {
-		return nil, nil, fmt.Errorf("image cannot be nil")
+	maxLen := imageShortIDLen
+	if imageNameLen := len(image.ID); imageNameLen < maxLen {
+		maxLen = imageNameLen
 	}
-	s.image = image
-	s.imageMountPath = mountPath
-
-	rhelDist, err := s.rhelDist(ctx)
-	if err != nil {
-		return nil, nil, fmt.Errorf("Unable to get RHEL distribution number: %v\n", err)
+	for k, v := range map[string]string{
+		"OSCAP_PROBE_ROOT":         mountPath,
+		"OSCAP_PROBE_OS_VERSION":   linuxVersionPH, // FIXME place holder value
+		"OSCAP_PROBE_ARCHITECTURE": imageArch,
+		"OSCAP_PROBE_OS_NAME":      linux,
+		"OSCAP_PROBE_PRIMARY_HOST_NAME": fmt.Sprintf("docker-image-%s",
+			image.ID[:maxLen]),
+	} {
+		if err := os.Setenv(k, v); err != nil {
+			return err
+		}
 	}
-
-	cveFileName, err := s.inputCVE(rhelDist)
-	if err != nil {
-		return nil, nil, fmt.Errorf("Unable to retreive the CVE file: %v\n", err)
-	}
-
-	args := []string{"xccdf", "eval", "--results-arf", path.Join(s.ResultsDir, ArfResultFile)}
-
-	if s.HTML {
-		args = append(args, "--report", path.Join(s.ResultsDir, HTMLResultFile))
-	}
-	log.Printf("Writing OpenSCAP results to %s", s.ResultsDir)
-
-	args = append(args, cveFileName)
-
-	_, err = s.chrootOscap(ctx, args...)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	// for mock/testing
-	if len(s.reports.ArfBytes) > 0 {
-		return ParseResults(s.reports.ArfBytes), s.reports, nil
-	}
-
-	s.reports.ArfBytes, s.reports.HTMLBytes, err = s.readOpenSCAPReports()
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return ParseResults(s.reports.ArfBytes), s.reports, nil
+	return nil
 }
 
-func (s *defaultOSCAPScanner) readOpenSCAPReports() ([]byte, []byte, error) {
-	empty := []byte{}
-	arfResults, err := ioutil.ReadFile(path.Join(s.ResultsDir, ArfResultFile))
+func readOpenSCAPReports(resultsDir string, outputHTML bool) ([]byte, []byte, error) {
+	arfResults, err := ioutil.ReadFile(path.Join(resultsDir, arfResultFile))
 	if err != nil {
-		return empty, empty, err
+		return nil, nil, err
 	}
-	if s.HTML {
-		htmlResults, err := ioutil.ReadFile(path.Join(s.ResultsDir, HTMLResultFile))
+	if outputHTML {
+		htmlResults, err := ioutil.ReadFile(path.Join(resultsDir, htmlResultFile))
 		if err != nil {
-			return empty, empty, err
+			return nil, nil, err
 		}
 		return htmlResults, arfResults, nil
 	}
-	return arfResults, empty, nil
+	return arfResults, nil, nil
 }
 
-func (s *defaultOSCAPScanner) Name() string {
-	return OpenSCAP
-}
-
-func ParseResults(report []byte) []iiapi.Result {
+func parseResults(report []byte) []iiapi.Result {
 	ret := []iiapi.Result{}
 	doc, err := xmldom.ParseXML(string(report))
 	if err != nil {
@@ -272,10 +251,10 @@ func ParseResults(report []byte) []iiapi.Result {
 			continue
 		}
 		result := iiapi.Result{
-			Name:           OpenSCAP,
-			ScannerVersion: OpenSCAPVersion,
+			Name:           scannerName,
+			ScannerVersion: openSCAPVersion,
 			Timestamp:      time.Now(),
-			Reference:      fmt.Sprintf("%s=%s", CVEDetailsUrl, strings.TrimSpace(c.GetChild("ident").Text)),
+			Reference:      fmt.Sprintf("%s=%s", cveDetailsUrl, strings.TrimSpace(c.GetChild("ident").Text)),
 		}
 		// If we have rule definition, we can provide more details
 		if ruleDef := node.QueryOne(fmt.Sprintf("//Benchmark//Rule[@id='%s']", c.GetAttribute("idref").Value)); ruleDef != nil {
