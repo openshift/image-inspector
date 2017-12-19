@@ -18,6 +18,7 @@ import (
 const (
 	versionTag             = "v1"
 	healthzPath            = "/healthz"
+	resultPath             = "/results"
 	apiPrefix              = "/api"
 	contentPath            = apiPrefix + "/" + versionTag + "/content/"
 	metadataPath           = apiPrefix + "/" + versionTag + "/metadata"
@@ -59,6 +60,7 @@ var _ = Describe("Webdav", func() {
 			MetadataURL:       metadataPath,
 			ContentURL:        contentPath,
 			ScanType:          scanType,
+			ResultAPIUrlPath:  resultPath,
 			ScanReportURL:     openscapReportPath,
 			HTMLScanReport:    true,
 			HTMLScanReportURL: openScapHTMLReportPath,

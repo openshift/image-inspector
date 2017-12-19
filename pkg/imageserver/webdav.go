@@ -101,6 +101,15 @@ func (s *webdavImageServer) GetHandler(meta *iiapi.InspectorMetadata,
 		w.Write(body)
 	})
 
+	mux.HandleFunc(s.opts.ResultAPIUrlPath, func(w http.ResponseWriter, r *http.Request) {
+		resultJSON, err := json.MarshalIndent(results, "", "  ")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Write(resultJSON)
+	})
+
 	mux.HandleFunc(s.opts.ScanReportURL, func(w http.ResponseWriter, r *http.Request) {
 		if s.opts.ScanType != "" && meta.OpenSCAP.Status == iiapi.StatusSuccess {
 			w.Write(scanReport)
