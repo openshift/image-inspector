@@ -15,7 +15,7 @@ import (
 	. "github.com/openshift/image-inspector/pkg/inspector"
 )
 
-var _ = Describe("ImageInspector", func() {
+var _ = Describe("ImageInspector Integration", func() {
 	var (
 		ii           ImageInspector
 		opts         *iicmd.ImageInspectorOptions
@@ -28,7 +28,7 @@ var _ = Describe("ImageInspector", func() {
 	)
 	//note: no expects in this block
 	//we just begin the http server here
-	BeforeSuite(func() {
+	BeforeEach(func() {
 		var err error
 		opts = iicmd.NewDefaultImageInspectorOptions()
 		opts.Serve = serve
