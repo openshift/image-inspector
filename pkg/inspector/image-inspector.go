@@ -72,14 +72,17 @@ type defaultImageInspector struct {
 
 func getAcquirer(opts *iicmd.ImageInspectorOptions) iiapi.ImageAcquirer {
 	if len(opts.Container) != 0 {
-		return iacq.NewDockerContainerImageAcquirer(opts.URI, opts.ScanContainerChanges)
+		return iacq.NewDockerContainerImageAcquirer(opts.DockerSocket, opts.ScanContainerChanges)
 	}
 	authOpts := iacq.AuthsOptions{
 		DockerCfg:    opts.DockerCfg,
 		Username:     opts.Username,
 		PasswordFile: opts.PasswordFile,
 	}
-	return iacq.NewDockerImageAcquirer(opts.URI, opts.DstPath, opts.PullPolicy, authOpts)
+	if opts.UseDockerSocket {
+		return iacq.NewDockerImageAcquirer(opts.DockerSocket, opts.DstPath, opts.PullPolicy, authOpts)
+	}
+	return iacq.NewContainerLibImageAcquirer(opts.DstPath, opts.RegistryCertDir, authOpts)
 }
 
 // NewInspectorMetadata returns a new InspectorMetadata out of *docker.Image

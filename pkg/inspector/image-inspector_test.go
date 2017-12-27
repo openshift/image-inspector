@@ -13,9 +13,17 @@ func TestAcquiringInInspect(t *testing.T) {
 		expectedAcqErr string
 	}{
 		"Invalid docker daemon endpoint": {
-			opts:           iicmd.ImageInspectorOptions{URI: "No such file"},
+			opts:           iicmd.ImageInspectorOptions{DockerSocket: "No such file", UseDockerSocket: true},
 			shouldFail:     true,
 			expectedAcqErr: "Unable to connect to docker daemon: invalid endpoint",
+		},
+		"unknown containers lib transport": {
+			opts: iicmd.ImageInspectorOptions{
+				Image:           "transport-not-existing://imagename",
+				UseDockerSocket: false,
+			},
+			shouldFail:     true,
+			expectedAcqErr: "invalid source name docker://transport-not-existing://imagename: Invalid image name \"transport-not-existing://imagename\", unknown transport \"transport-not-existing\"",
 		},
 	} {
 		ii := NewDefaultImageInspector(v.opts).(*defaultImageInspector)

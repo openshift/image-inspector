@@ -37,3 +37,7 @@ func NewDockerImageAcquirer(dockerSocket string,
 func NewDockerContainerImageAcquirer(dockerSocket string, scanContainerChanges bool) iiapi.ImageAcquirer {
 	return &dockerContainerImageAcquirer{dockerSocket, scanContainerChanges}
 }
+
+func NewContainerLibImageAcquirer(dstPath string, registryCertPath string, auths AuthsOptions) iiapi.ImageAcquirer {
+	return &containerLibImageAcquirer{dstPath, registryCertPath, auths}
+}

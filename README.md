@@ -67,3 +67,38 @@ To build the image-inspector you can run this command:
       -v /var/run/docker.sock:/var/run/docker.sock \
       openshift/image-inspector --image=registry.access.redhat.com/rhel7:latest \
       --path=/tmp/image-content --scan-type=openscap --serve 0.0.0.0:8080
+
+# Running without Docker
+
+It is also possible to run Image Inspector without having access to the 
+Docker Daemon, which will permit running without `--privileged` mode 
+enabled if running as a Pod/Container. 
+
+To do so, run image inspector with the flag `--use-docker-socket=false` like so: 
+
+    ./image-inspector --image=fedora:22 --path=/tmp/image-content --scan-type=openscap
+    			--serve 0.0.0.0:8080 --chroot --use-docker-socket=false
+
+or, as a container 
+
+    docker run -ti --rm -p 8080:8080 openshift/image-inspector \
+          --scan-type=openscap --image=registry.access.redhat.com/rhel7:latest \
+          --path=/tmp/image-content --serve 0.0.0.0:8080 --use-docker-socket=false
+     
+
+Note that if you are connecting to a private docker registry over TLS, 
+you will need to provide image inspector with the path to the **directory** 
+containing a valid CA certificate for the registry. Note that the certificate must 
+end in `.crt` to be recognized by the image-inspector. Supply the path with the flag 
+    
+    --registry-cert-dir=<path-to-directory>
+
+If authentication to a private registry or organization is required, you can 
+provide authentication credentials to the image inspector with 
+
+    --username <username> --password-file <path-to-file-containing-password>
+    
+or
+```
+--dockercfg <path-to-dockercfg>
+```   
