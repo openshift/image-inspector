@@ -1,4 +1,5 @@
-/_output
-image-inspector
 *.a
 *.swp
+/_output
+/vendor
+image-inspector

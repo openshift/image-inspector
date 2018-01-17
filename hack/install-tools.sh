@@ -7,7 +7,7 @@ CODE_ROOT=$(dirname "${BASH_SOURCE}")/..
 source "${CODE_ROOT}/hack/common.sh"
 echo "Detected go version: $(go version)"
 
-go get github.com/tools/godep
+go get github.com/golang/dep/cmd/dep  # installs the `dep` tool
 go get github.com/onsi/ginkgo/ginkgo  # installs the ginkgo CLI
 go get github.com/onsi/gomega         # fetches the matcher library
 

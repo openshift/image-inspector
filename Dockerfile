@@ -7,10 +7,13 @@ RUN yum update -y && \
 
 COPY .  /go/src/github.com/openshift/image-inspector
 
-RUN GOBIN=/usr/bin \
-    GOPATH=/go \
-    CGO_ENABLED=0 \
-    go install -a -installsuffix cgo /go/src/github.com/openshift/image-inspector/cmd/image-inspector.go && \
+RUN export GOBIN=/usr/bin && \
+    export GOPATH=/go && \
+    export CGO_ENABLED=0 && \
+    cd /go/src/github.com/openshift/image-inspector && \
+    go get -v github.com/golang/dep/cmd/dep && \
+    dep ensure -vendor-only -v && \
+    go install -a -installsuffix cgo cmd/image-inspector.go && \
     mkdir -p /var/lib/image-inspector
 
 EXPOSE 8080

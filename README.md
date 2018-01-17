@@ -57,6 +57,10 @@ provide the `-post-results-token-file` option and point it to a file with shared
 
 # Building
 
+The dependencies of the project are managed using the [dep](https://github.com/golang/dep)
+tool, so make sure you have it installed in in your `$PATH` before trying to build. The
+`make` command will automatically create and populate the `vendor` directory.
+
 To build the image-inspector you can run this command:
 
     $ make

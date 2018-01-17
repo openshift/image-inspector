@@ -3,6 +3,7 @@
 # Targets (see each target for more information):
 #   all: Build code.
 #   build: Build code.
+#   vendor: Create and populate the `vendor` directory.
 #   test-unit: Run unit tests.
 #   clean: Clean up.
 
@@ -13,16 +14,23 @@ OUT_DIR = _output
 # Example:
 #   make
 #   make all
-all build:
+all build: vendor
 	hack/build-go.sh
 .PHONY: all build
+
+# Create and populate the `vendor` directory, using the `dep` tool.
+#
+# Example:
+#   make vendor
+vendor: Gopkg.toml Gopkg.lock
+	dep ensure -vendor-only -v
 
 # Remove all build artifacts.
 #
 # Example:
 #   make clean
 clean:
-	rm -rf $(OUT_DIR)
+	rm -rf $(OUT_DIR) vendor
 .PHONY: clean
 
 # Verify code conventions are properly setup.

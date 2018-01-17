@@ -1,0 +1,23 @@
+[[constraint]]
+  name = "golang.org/x/net"
+  revision = "570fa1c91359c1869590e9cedf3b53162a51a167"
+
+[[constraint]]
+  name = "github.com/fsouza/go-dockerclient"
+  revision = "bf97c77db7c945cbcdbf09d56c6f87a66f54537b"
+
+[[constraint]]
+  name = "github.com/openshift/clam-scanner"
+  revision = "10301190ffc03e918609f280458bd6bb26e779e2"
+
+[[constraint]]
+  name = "github.com/subchen/go-xmldom"
+  revision = "93fb82989feca2cc04221f1483c8fe1dc98ed503"
+
+[[constraint]]
+  name = "github.com/antchfx/xpath"
+  revision = "0851b60062c5ccde520ce15765695b8525d4a034"
+
+[[constraint]]
+  name = "github.com/golang/glog"
+  revision = "23def4e6c14b4da8ac2ed8007337bc5eb5007998"
