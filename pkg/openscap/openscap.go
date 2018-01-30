@@ -268,21 +268,37 @@ func ParseResults(report []byte) []iiapi.Result {
 	}
 	node := xmldom.Must(doc, nil).Root
 	for _, c := range node.Query("//rule-result") {
-		if !strings.Contains(c.GetChild("result").Text, "fail") {
+		if !strings.Contains(getChildText(c, "result"), "fail") {
 			continue
 		}
 		result := iiapi.Result{
 			Name:           OpenSCAP,
 			ScannerVersion: OpenSCAPVersion,
 			Timestamp:      time.Now(),
-			Reference:      fmt.Sprintf("%s=%s", CVEDetailsUrl, strings.TrimSpace(c.GetChild("ident").Text)),
+			Reference:      fmt.Sprintf("%s=%s", CVEDetailsUrl, strings.TrimSpace(getChildText(c, "ident"))),
 		}
 		// If we have rule definition, we can provide more details
-		if ruleDef := node.QueryOne(fmt.Sprintf("//Benchmark//Rule[@id='%s']", c.GetAttribute("idref").Value)); ruleDef != nil {
-			result.Description = strings.TrimSpace(ruleDef.GetChild("title").Text)
-			result.Summary = []iiapi.Summary{{Label: iiapi.Severity(ruleDef.GetAttribute("severity").Value)}}
+		if ruleDef := node.QueryOne(fmt.Sprintf("//Benchmark//Rule[@id='%s']", getAttributeValue(c, "idref"))); ruleDef != nil {
+			result.Description = strings.TrimSpace(getChildText(ruleDef, "title"))
+			result.Summary = []iiapi.Summary{{Label: iiapi.Severity(getAttributeValue(ruleDef, "severity"))}}
 		}
 		ret = append(ret, result)
 	}
 	return ret
+}
+
+func getAttributeValue(r *xmldom.Node, name string) string {
+	attr := r.GetAttribute(name)
+	if attr != nil {
+		return attr.Value
+	}
+	return ""
+}
+
+func getChildText(r *xmldom.Node, name string) string {
+	child := r.GetChild(name)
+	if child != nil {
+		return child.Text
+	}
+	return ""
 }
