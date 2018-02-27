@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+
 	"testing"
 
 	docker "github.com/fsouza/go-dockerclient"
@@ -18,7 +19,7 @@ func TestAcquiringInInspect(t *testing.T) {
 		shouldFail     bool
 		expectedAcqErr string
 	}{
-		"Scanner fails on scan": {ii: defaultImageInspector{opts: iicmd.ImageInspectorOptions{URI: "No such file", Serve: ""}},
+		"Scanner fails on scan": {ii: defaultImageInspector{opts: iicmd.ImageInspectorOptions{DockerSocket: "No such file", Serve: ""}},
 			shouldFail:     true,
 			expectedAcqErr: "invalid endpoint",
 		},
@@ -272,7 +273,7 @@ func (c mockRuntimeClientAllSuccessButContainerChanges) ContainerChanges(id stri
 	return []docker.Change{}, fmt.Errorf("mockDockerRuntimeClient FAIL")
 }
 
-func TestPullImage(t *testing.T) {
+func TestDockerPullImage(t *testing.T) {
 	for k, v := range map[string]struct {
 		client      DockerRuntimeClient
 		shouldFail  bool
@@ -285,7 +286,7 @@ func TestPullImage(t *testing.T) {
 			client: mockRuntimeClientPullSuccess{}},
 	} {
 		ii := &defaultImageInspector{iicmd.ImageInspectorOptions{Image: "NoSuchImage!"}, iiapi.InspectorMetadata{}, nil, scanOutputs{}}
-		err := ii.pullImage(v.client)
+		err := ii.dockerPullImage(v.client)
 		if v.shouldFail {
 			if err == nil {
 				t.Errorf("%s should have failed but it didn't", k)
@@ -303,11 +304,11 @@ func TestPullImage(t *testing.T) {
 }
 
 func TestAcquireImage(t *testing.T) {
-	noContainerPullNever := iicmd.ImageInspectorOptions{Image: "noSuchImage", Container: "", PullPolicy: iiapi.PullNever}
-	noContainerPullAlways := iicmd.ImageInspectorOptions{Image: "noSuchImage", Container: "", PullPolicy: iiapi.PullAlways}
-	noContainerPullNotPresent := iicmd.ImageInspectorOptions{Image: "noSuchImage", Container: "", PullPolicy: iiapi.PullIfNotPresent}
+	noContainerPullNever := iicmd.ImageInspectorOptions{Image: "noSuchImage", Container: "", PullPolicy: iiapi.PullNever, UseDockerSocket: true}
+	noContainerPullAlways := iicmd.ImageInspectorOptions{Image: "noSuchImage", Container: "", PullPolicy: iiapi.PullAlways, UseDockerSocket: true}
+	noContainerPullNotPresent := iicmd.ImageInspectorOptions{Image: "noSuchImage", Container: "", PullPolicy: iiapi.PullIfNotPresent, UseDockerSocket: true}
 
-	fromContainer := iicmd.ImageInspectorOptions{Container: "I am a container", ScanContainerChanges: true}
+	fromContainer := iicmd.ImageInspectorOptions{Container: "I am a container", ScanContainerChanges: true, UseDockerSocket: true}
 
 	for k, v := range map[string]struct {
 		opts        iicmd.ImageInspectorOptions

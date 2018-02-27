@@ -46,17 +46,19 @@ var _ = Describe("ImageInspector", func() {
 			}
 		}()
 		//allow 5 minutes to pull image
-		if err := waitForImage(opts.URI, opts.Image, time.Minute*5); err != nil {
+		if err := waitForImage(opts.DockerSocket, opts.Image, time.Minute*5); err != nil {
 			panic(err)
 		}
 		//allow 40s to start serving http
-		if err := waitForServer(opts.Serve, time.Second*40); err != nil {
+		if err := waitForServer(opts.Serve, time.Second*60); err != nil {
 			panic(err)
 		}
 	})
+
 	AfterSuite(func() {
 		os.RemoveAll(opts.DstPath)
 	})
+
 	Describe(".Inspect()", func() {
 
 		paths := []string{
