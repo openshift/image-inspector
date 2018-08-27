@@ -250,7 +250,7 @@ func (s *defaultOSCAPScanner) readOpenSCAPReports() ([]byte, []byte, error) {
 		if err != nil {
 			return empty, empty, err
 		}
-		return htmlResults, arfResults, nil
+		return arfResults, htmlResults, nil
 	}
 	return arfResults, empty, nil
 }
