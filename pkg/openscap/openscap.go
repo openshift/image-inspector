@@ -142,7 +142,16 @@ func (s *defaultOSCAPScanner) getInputCVE(dist int) (string, error) {
 	}
 	defer out.Close()
 
-	resp, err := http.Get(cveURL.String())
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", cveURL.String(), nil)
+	if err != nil {
+		return "", fmt.Errorf("Could not request file %s:\n", err)
+	}
+
+	// Some servers require 'Accept' and 'User-Agent' headers.
+	req.Header.Add("Accept", `application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8`)
+	req.Header.Add("User-Agent", `ImageInspector/latest`)
+	resp, err := client.Do(req)
 	if err != nil || resp.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("Could not download file %s: %v\n", cveURL, err)
 	}
