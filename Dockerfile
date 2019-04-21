@@ -1,8 +1,12 @@
 FROM registry.centos.org/centos/centos:7
 MAINTAINER      Federico Simoncelli <fsimonce@redhat.com>
 
+# EPEL repo needed for golang on CentOS 7.
 RUN yum update -y && \
-    yum install -y golang openscap-scanner git && \
+    yum install -y epel-release && \
+    yum install -y golang && \
+    yum install -y openscap-scanner && \
+    yum install -y git && \
     yum clean all
 
 COPY .  /go/src/github.com/openshift/image-inspector

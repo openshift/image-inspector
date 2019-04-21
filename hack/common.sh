@@ -51,7 +51,8 @@ EOF
   if [[ "${TRAVIS:-}" != "true" ]]; then
     local go_version
     go_version=($(go version))
-    if [[ "${go_version[2]}" < "go1.5" ]]; then
+    minimum_go_version=go1.5.0
+    if [[ "${minimum_go_version}" != $(echo -e "${minimum_go_version}\n${go_version[2]}" | sort -s -t. -k 1,1 -k 2,2n -k 3,3n | head -n1) ]]; then
       cat <<EOF
 
 Detected Go version: ${go_version[*]}.
